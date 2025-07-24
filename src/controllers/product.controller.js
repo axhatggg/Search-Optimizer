@@ -33,16 +33,18 @@ const addProduct = asyncHandler(async (req, res) => {
         throw new ApiError(409, "Product with this name already exists");
     }
 
-    // Handle image uploads (same pattern as user controller)
-    const imageLocalPath = req.files?.images[0]?.path;
-    
-    let imageUrl = "";
-    if (imageLocalPath) {
-        const image = await uploadOnCloudinary(imageLocalPath);
-        if (!image) {
-            throw new ApiError(500, "Image upload failed");
+    // Handle multiple image uploads
+    let imageUrls = [];
+    if (req.files && req.files.images && Array.isArray(req.files.images)) {
+        for (const file of req.files.images) {
+            if (file.path) {
+                const image = await uploadOnCloudinary(file.path);
+                if (!image) {
+                    throw new ApiError(500, "Image upload failed");
+                }
+                imageUrls.push(image.url);
+            }
         }
-        imageUrl = image.url;
     }
 
     // Create the product
@@ -54,7 +56,7 @@ const addProduct = asyncHandler(async (req, res) => {
         category: category.trim(),
         color: color.trim(),
         brand: brand.trim(),
-        images: imageUrl ? [imageUrl] : []
+        images: imageUrls
     });
 
     if (!product) {
