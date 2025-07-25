@@ -56,7 +56,8 @@ const addProduct = asyncHandler(async (req, res) => {
         category: category.trim(),
         color: color.trim(),
         brand: brand.trim(),
-        images: imageUrls
+        images: imageUrls,
+        owner: req.user._id // Add the logged-in user as owner
     });
 
     if (!product) {
@@ -68,4 +69,82 @@ const addProduct = asyncHandler(async (req, res) => {
     );
 });
 
-export { addProduct };
+// Update product (only by owner)
+const updateProduct = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { name, description, price, count, category, color, brand } = req.body;
+
+    // Find the product
+    const product = await Product.findById(id);
+    if (!product) {
+        throw new ApiError(404, "Product not found");
+    }
+
+    // Check if user is the owner
+    if (product.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You can only edit your own products");
+    }
+
+    // Handle new image uploads
+    let newImageUrls = [];
+    if (req.files && req.files.images && Array.isArray(req.files.images)) {
+        for (const file of req.files.images) {
+            if (file.path) {
+                const image = await uploadOnCloudinary(file.path);
+                if (!image) {
+                    throw new ApiError(500, "Image upload failed");
+                }
+                newImageUrls.push(image.url);
+            }
+        }
+    }
+
+    // Update fields only if provided
+    const updateData = {};
+    if (name) updateData.name = name.trim();
+    if (description) updateData.description = description.trim();
+    if (price) updateData.price = parseFloat(price);
+    if (count !== undefined) updateData.count = parseInt(count);
+    if (category) updateData.category = category.trim();
+    if (color) updateData.color = color.trim();
+    if (brand) updateData.brand = brand.trim();
+    
+    // Add new images to existing ones
+    if (newImageUrls.length > 0) {
+        updateData.images = [...product.images, ...newImageUrls];
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true, runValidators: true }
+    );
+
+    return res.status(200).json(
+        new ApiResponse(200, updatedProduct, "Product updated successfully")
+    );
+});
+
+// Delete product (only by owner)
+const deleteProduct = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    // Find the product
+    const product = await Product.findById(id);
+    if (!product) {
+        throw new ApiError(404, "Product not found");
+    }
+
+    // Check if user is the owner
+    if (product.owner.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You can only delete your own products");
+    }
+
+    await Product.findByIdAndDelete(id);
+
+    return res.status(200).json(
+        new ApiResponse(200, {}, "Product deleted successfully")
+    );
+});
+
+export { addProduct, updateProduct, deleteProduct };
