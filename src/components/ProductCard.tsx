@@ -12,6 +12,8 @@ export interface Product {
   rating: number;
   reviews: number;
   category: string;
+  company: string;
+  gender?: 'Men' | 'Women' | 'Unisex';
   isNew?: boolean;
   isSale?: boolean;
 }
@@ -69,9 +71,13 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       <CardContent className="p-4">
         <div className="space-y-2">
           <p className="text-sm text-muted-foreground">{product.category}</p>
+          <p className="text-xs text-muted-foreground font-medium">{product.company}</p>
           <h3 className="font-semibold text-sm leading-tight line-clamp-2">
             {product.name}
           </h3>
+          {product.gender && (
+            <p className="text-xs text-muted-foreground">For {product.gender}</p>
+          )}
           
           {/* Rating */}
           <div className="flex items-center gap-1">
