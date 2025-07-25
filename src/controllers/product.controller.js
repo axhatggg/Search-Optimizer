@@ -8,7 +8,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 const addProduct = asyncHandler(async (req, res) => {
     const { name, description, price, count, category, color, brand } = req.body;
 
-        console.log("Request body:", req.body);
+        // console.log("Request body:", req.body);
         
 
     // Validate required fields
@@ -28,10 +28,10 @@ const addProduct = asyncHandler(async (req, res) => {
     }
 
     // Check if product with same name already exists
-    const existingProduct = await Product.findOne({ name: name.trim() });
-    if (existingProduct) {
-        throw new ApiError(409, "Product with this name already exists");
-    }
+    // const existingProduct = await Product.findOne({ name: name.trim() });
+    // if (existingProduct) {
+    //     throw new ApiError(409, "Product with this name already exists");
+    // }
 
     // Handle multiple image uploads
     let imageUrls = [];
@@ -109,10 +109,10 @@ const updateProduct = asyncHandler(async (req, res) => {
     if (color) updateData.color = color.trim();
     if (brand) updateData.brand = brand.trim();
     
-    // Add new images to existing ones
-    if (newImageUrls.length > 0) {
-        updateData.images = [...product.images, ...newImageUrls];
-    }
+   // Replace images if new ones are uploaded
+if (newImageUrls.length > 0) {
+    updateData.images = newImageUrls; // ✅ Replace existing images
+}
 
     const updatedProduct = await Product.findByIdAndUpdate(
         id,
