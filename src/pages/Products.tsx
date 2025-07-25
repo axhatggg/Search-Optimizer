@@ -17,6 +17,8 @@ import yogaMatImage from "@/assets/yoga-mat.jpg";
 import faceCreamImage from "@/assets/face-cream.jpg";
 import phoneCaseImage from "@/assets/phone-case.jpg";
 import bookImage from "@/assets/book.jpg";
+import gamingmouseImage from "@/assets/gamingmouseImage.jpeg";
+import denimjacketImage from "@/assets/denimjacketImage.jpeg";
 
 // Extended products data for the products page
 const allProducts: Product[] = [
@@ -126,7 +128,7 @@ const allProducts: Product[] = [
     id: 9,
     name: "Gaming Mouse - RGB",
     price: 45.99,
-    image: headphonesImage, // Using placeholder
+    image: gamingmouseImage, // Using placeholder
     rating: 4.6,
     reviews: 89,
     category: "Electronics",
@@ -139,7 +141,7 @@ const allProducts: Product[] = [
     name: "Casual Denim Jacket",
     price: 59.99,
     originalPrice: 79.99,
-    image: tshirtImage, // Using placeholder
+    image: denimjacketImage, // Using placeholder
     rating: 4.3,
     reviews: 45,
     category: "Clothing",

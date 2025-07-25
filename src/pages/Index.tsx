@@ -18,6 +18,15 @@ import yogaMatImage from "@/assets/yoga-mat.jpg";
 import faceCreamImage from "@/assets/face-cream.jpg";
 import phoneCaseImage from "@/assets/phone-case.jpg";
 import bookImage from "@/assets/book.jpg";
+import smartwatchImage from "@/assets/smartwatchImage.jpeg";
+import artsupplykitImage from "@/assets/artsupplykitImage.jpeg"
+import keyboardImage from "@/assets/keyboardImage.jpeg"
+import leatherbagImage from "@/assets/leatherbagImage.jpeg"
+import stainlessbottleImage from "@/assets/stainlessbottleImage.jpeg"
+import wirelessphonechargerImage from "@/assets/wirelessphonechargerImage.jpeg"
+import greenteasetImage from "@/assets/greenteasetImage.webp"
+import runningshoesImage from "@/assets/runningshoesImage.webp"
+
 
 // Sample products data
 const sampleProducts: Product[] = [
@@ -128,7 +137,7 @@ const sampleProducts: Product[] = [
     name: "Gaming Mechanical Keyboard",
     price: 89.99,
     originalPrice: 119.99,
-    image: headphonesImage, // Using existing image as placeholder
+    image: keyboardImage, // Using existing image as placeholder
     rating: 4.6,
     reviews: 245,
     category: "Electronics",
@@ -140,7 +149,7 @@ const sampleProducts: Product[] = [
     id: 10,
     name: "Leather Business Bag",
     price: 129.99,
-    image: phoneCaseImage, // Using existing image as placeholder
+    image: leatherbagImage, // Using existing image as placeholder
     rating: 4.4,
     reviews: 89,
     category: "Fashion & Accessories",
@@ -153,7 +162,7 @@ const sampleProducts: Product[] = [
     name: "Stainless Steel Water Bottle",
     price: 24.99,
     originalPrice: 34.99,
-    image: coffeeImage, // Using existing image as placeholder
+    image: stainlessbottleImage, // Using existing image as placeholder
     rating: 4.7,
     reviews: 156,
     category: "Sports & Fitness",
@@ -165,7 +174,7 @@ const sampleProducts: Product[] = [
     id: 12,
     name: "Wireless Phone Charger",
     price: 29.99,
-    image: securityCameraImage, // Using existing image as placeholder
+    image: wirelessphonechargerImage, // Using existing image as placeholder
     rating: 4.3,
     reviews: 78,
     category: "Electronics",
@@ -178,7 +187,7 @@ const sampleProducts: Product[] = [
     name: "Organic Green Tea Set",
     price: 22.99,
     originalPrice: 29.99,
-    image: faceCreamImage, // Using existing image as placeholder
+    image: greenteasetImage, // Using existing image as placeholder
     rating: 4.8,
     reviews: 134,
     category: "Food & Beverages",
@@ -190,7 +199,7 @@ const sampleProducts: Product[] = [
     id: 14,
     name: "Running Shoes - Men's",
     price: 79.99,
-    image: yogaMatImage, // Using existing image as placeholder
+    image: runningshoesImage, // Using existing image as placeholder
     rating: 4.5,
     reviews: 298,
     category: "Sports & Fitness",
@@ -204,7 +213,7 @@ const sampleProducts: Product[] = [
     name: "Art Supplies Kit",
     price: 34.99,
     originalPrice: 49.99,
-    image: bookImage, // Using existing image as placeholder
+    image: artsupplykitImage, // Using existing image as placeholder
     rating: 4.6,
     reviews: 112,
     category: "Arts & Crafts",
@@ -217,7 +226,7 @@ const sampleProducts: Product[] = [
     name: "Smart Watch - Fitness Tracker",
     price: 199.99,
     originalPrice: 249.99,
-    image: headphonesImage, // Using existing image as placeholder
+    image: smartwatchImage, // Using existing image as placeholder
     rating: 4.4,
     reviews: 567,
     category: "Electronics",
