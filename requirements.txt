@@ -1,0 +1,28 @@
+# Web framework
+fastapi
+uvicorn[standard]
+
+# Environment variable handling
+python-dotenv
+
+# MongoDB client
+pymongo
+
+# Elasticsearch client
+elasticsearch
+
+# NLP and tokenization
+spacy
+
+# For fuzzy matching
+rapidfuzz
+
+# Optional: for type hints and static checks
+typing-extensions
+
+# If you're using JSON schema validation
+pydantic
+
+# To download spaCy language models, e.g., en_core_web_sm
+# Not listed here directly; do in post-install:
+# python -m spacy download en_core_web_sm
