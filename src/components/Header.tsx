@@ -1,12 +1,13 @@
 
 import { useState } from "react";
 // import { Search, ShoppingCart, Menu, X, User, Settings } from "lucide-react";
-import { Search, ShoppingCart, Menu, X, User, Settings, Heart } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, User, Settings, Heart, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface HeaderProps {
   onSearch: (query: string) => void;
@@ -18,6 +19,7 @@ export function Header({ onSearch, cartCount }: HeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,9 +90,22 @@ export function Header({ onSearch, cartCount }: HeaderProps) {
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" size="icon" className="hidden md:flex">
+            {/* <Button variant="ghost" size="icon" className="hidden md:flex">
               <User className="h-5 w-5" />
-            </Button>
+            </Button> */}
+            {user ? (
+              <div className="flex items-center space-x-2">
+                <Button variant="ghost" size="icon" onClick={logout}>
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </div>
+            ) : (
+              <Link to="/login">
+                <Button variant="ghost" size="icon" className="hidden md:flex">
+                  <User className="h-5 w-5" />
+                </Button>
+              </Link>
+            )}
 
             <ThemeToggle />
 

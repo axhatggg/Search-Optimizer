@@ -1,5 +1,8 @@
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { Product } from '@/components/ProductCard';
+import { db } from '@/integrations/firebase/config';
+import { collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy } from 'firebase/firestore';
+import { useAuth } from './AuthContext';
 
 // Import product images
 import headphonesImage from "@/assets/headphones.jpg";
@@ -174,38 +177,91 @@ interface ProductsProviderProps {
 export const ProductsProvider: React.FC<ProductsProviderProps> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts);
 
-  const addProduct = (productData: Omit<Product, 'id'>) => {
-    const newProduct: Product = {
-      ...productData,
-      id: Math.max(...products.map(p => p.id), 0) + 1,
-    };
-    setProducts(prev => [...prev, newProduct]);
-  };
+  const { user } = useAuth();
 
-  const updateProduct = (id: number, productData: Omit<Product, 'id'>) => {
-    setProducts(prev => prev.map(p => p.id === id ? { ...productData, id } : p));
-  };
+  useEffect(() => {
+    if (!user) return;
 
-  const deleteProduct = (id: number) => {
-    setProducts(prev => prev.filter(p => p.id !== id));
-  };
-
-  const rateProduct = (productId: number, rating: number) => {
-    const currentUserId = "user123"; // In a real app, this would come from auth context
-    setProducts(products.map(product => {
-      if (product.id === productId) {
-        const newRating = {
-          userId: currentUserId,
-          rating,
-          timestamp: new Date()
-        };
-        return {
-          ...product,
-          userRatings: [...product.userRatings, newRating]
-        };
+    const q = query(collection(db, 'products'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const firestoreProducts = snapshot.docs.map(doc => ({
+        id: parseInt(doc.id),
+        ...doc.data()
+      })) as Product[];
+      
+      // Merge with initial products if no Firestore products exist
+      if (firestoreProducts.length === 0) {
+        setProducts(initialProducts);
+      } else {
+        setProducts(firestoreProducts);
       }
-      return product;
-    }));
+    });
+
+    return () => unsubscribe();
+  }, [user]);
+
+  const addProduct = async (productData: Omit<Product, 'id'>) => {
+    if (!user) return;
+    
+    try {
+      const docRef = await addDoc(collection(db, 'products'), {
+        ...productData,
+        createdAt: new Date(),
+        userId: user.uid
+      });
+      console.log('Product added with ID: ', docRef.id);
+    } catch (error) {
+      console.error('Error adding product: ', error);
+    }
+  };
+
+  const updateProduct = async (id: number, productData: Omit<Product, 'id'>) => {
+    if (!user) return;
+    
+    try {
+      const productRef = doc(db, 'products', id.toString());
+      await updateDoc(productRef, {
+        ...productData,
+        updatedAt: new Date()
+      });
+    } catch (error) {
+      console.error('Error updating product: ', error);
+    }
+  };
+
+  const deleteProduct = async (id: number) => {
+    if (!user) return;
+    
+    try {
+      await deleteDoc(doc(db, 'products', id.toString()));
+    } catch (error) {
+      console.error('Error deleting product: ', error);
+    }
+  };
+
+  const rateProduct = async (productId: number, rating: number) => {
+    if (!user) return;
+    
+    const currentUserId = user.uid;
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    const newRating = {
+      userId: currentUserId,
+      rating,
+      timestamp: new Date()
+    };
+
+    const updatedRatings = [...product.userRatings, newRating];
+    
+    try {
+      const productRef = doc(db, 'products', productId.toString());
+      await updateDoc(productRef, {
+        userRatings: updatedRatings
+      });
+    } catch (error) {
+      console.error('Error rating product: ', error);
+    }
   };
 
   return (
