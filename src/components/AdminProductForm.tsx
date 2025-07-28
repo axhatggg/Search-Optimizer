@@ -21,13 +21,14 @@ export function AdminProductForm({ product, onSubmit, onCancel }: AdminProductFo
     price: product?.price || 0,
     originalPrice: product?.originalPrice || 0,
     image: product?.image || "",
-    rating: product?.rating || 0,
-    reviews: product?.reviews || 0,
+    // rating: product?.rating || 0,
+    // reviews: product?.reviews || 0,
     category: product?.category || "",
     company: product?.company || "",
     gender: product?.gender || "",
     isNew: product?.isNew || false,
     isSale: product?.isSale || false,
+    userRatings: product?.userRatings || [],
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -131,7 +132,7 @@ export function AdminProductForm({ product, onSubmit, onCancel }: AdminProductFo
               />
             </div>
 
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <Label htmlFor="rating">Rating (0-5)</Label>
               <Input
                 id="rating"
@@ -154,7 +155,8 @@ export function AdminProductForm({ product, onSubmit, onCancel }: AdminProductFo
                 onChange={(e) => handleInputChange("reviews", parseInt(e.target.value) || 0)}
                 placeholder="0"
               />
-            </div>
+            </div> */}
+            
           </div>
 
           <div className="space-y-2">

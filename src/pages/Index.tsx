@@ -8,6 +8,8 @@ import { FilterPanel, FilterState } from "@/components/FilterPanel";
 import { Product } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useProducts } from "@/contexts/ProductsContext";
+import { useCart } from "@/contexts/CartContext";
 
 // Import product images
 import headphonesImage from "@/assets/headphones.jpg";
@@ -28,226 +30,30 @@ import greenteasetImage from "@/assets/greenteasetImage.webp"
 import runningshoesImage from "@/assets/runningshoesImage.webp"
 
 
-// Sample products data
-const sampleProducts: Product[] = [
-  {
-    id: 1,
-    name: "Wireless Bluetooth Headphones",
-    price: 79.99,
-    originalPrice: 99.99,
-    image: headphonesImage,
-    rating: 4.5,
-    reviews: 128,
-    category: "Electronics",
-    company: "Sony",
-    isNew: true,
-    isSale: true,
-  },
-  {
-    id: 2,
-    name: "Premium Cotton T-Shirt",
-    price: 24.99,
-    image: tshirtImage,
-    rating: 4.2,
-    reviews: 85,
-    category: "Clothing",
-    company: "Nike",
-    gender: "Unisex",
-    isNew: false,
-    isSale: false,
-  },
-  {
-    id: 3,
-    name: "Smart Home Security Camera",
-    price: 149.99,
-    originalPrice: 199.99,
-    image: securityCameraImage,
-    rating: 4.7,
-    reviews: 203,
-    category: "Electronics",
-    company: "Ring",
-    isNew: true,
-    isSale: true,
-  },
-  {
-    id: 4,
-    name: "Organic Coffee Beans - 1lb",
-    price: 16.99,
-    image: coffeeImage,
-    rating: 4.8,
-    reviews: 156,
-    category: "Food & Beverages",
-    company: "Starbucks",
-    isNew: false,
-    isSale: false,
-  },
-  {
-    id: 5,
-    name: "Yoga Mat - Extra Thick",
-    price: 39.99,
-    originalPrice: 59.99,
-    image: yogaMatImage,
-    rating: 4.4,
-    reviews: 92,
-    category: "Sports & Fitness",
-    company: "Lululemon",
-    isNew: false,
-    isSale: true,
-  },
-  {
-    id: 6,
-    name: "Moisturizing Face Cream",
-    price: 32.99,
-    image: faceCreamImage,
-    rating: 4.6,
-    reviews: 174,
-    category: "Beauty & Health",
-    company: "Olay",
-    isNew: true,
-    isSale: false,
-  },
-  {
-    id: 7,
-    name: "Smartphone Case - Clear",
-    price: 19.99,
-    originalPrice: 29.99,
-    image: phoneCaseImage,
-    rating: 4.3,
-    reviews: 67,
-    category: "Electronics",
-    company: "Apple",
-    isNew: false,
-    isSale: true,
-  },
-  {
-    id: 8,
-    name: "Bestselling Novel Book",
-    price: 14.99,
-    image: bookImage,
-    rating: 4.9,
-    reviews: 312,
-    category: "Books & Media",
-    company: "Penguin",
-    isNew: true,
-    isSale: false,
-  },
-  // Additional products for variety
-  {
-    id: 9,
-    name: "Gaming Mechanical Keyboard",
-    price: 89.99,
-    originalPrice: 119.99,
-    image: keyboardImage, // Using existing image as placeholder
-    rating: 4.6,
-    reviews: 245,
-    category: "Electronics",
-    company: "Logitech",
-    isNew: true,
-    isSale: true,
-  },
-  {
-    id: 10,
-    name: "Leather Business Bag",
-    price: 129.99,
-    image: leatherbagImage, // Using existing image as placeholder
-    rating: 4.4,
-    reviews: 89,
-    category: "Fashion & Accessories",
-    company: "Coach",
-    isNew: false,
-    isSale: false,
-  },
-  {
-    id: 11,
-    name: "Stainless Steel Water Bottle",
-    price: 24.99,
-    originalPrice: 34.99,
-    image: stainlessbottleImage, // Using existing image as placeholder
-    rating: 4.7,
-    reviews: 156,
-    category: "Sports & Fitness",
-    company: "Hydro Flask",
-    isNew: false,
-    isSale: true,
-  },
-  {
-    id: 12,
-    name: "Wireless Phone Charger",
-    price: 29.99,
-    image: wirelessphonechargerImage, // Using existing image as placeholder
-    rating: 4.3,
-    reviews: 78,
-    category: "Electronics",
-    company: "Anker",
-    isNew: true,
-    isSale: false,
-  },
-  {
-    id: 13,
-    name: "Organic Green Tea Set",
-    price: 22.99,
-    originalPrice: 29.99,
-    image: greenteasetImage, // Using existing image as placeholder
-    rating: 4.8,
-    reviews: 134,
-    category: "Food & Beverages",
-    company: "Twinings",
-    isNew: false,
-    isSale: true,
-  },
-  {
-    id: 14,
-    name: "Running Shoes - Men's",
-    price: 79.99,
-    image: runningshoesImage, // Using existing image as placeholder
-    rating: 4.5,
-    reviews: 298,
-    category: "Sports & Fitness",
-    company: "Adidas",
-    gender: "Men",
-    isNew: true,
-    isSale: false,
-  },
-  {
-    id: 15,
-    name: "Art Supplies Kit",
-    price: 34.99,
-    originalPrice: 49.99,
-    image: artsupplykitImage, // Using existing image as placeholder
-    rating: 4.6,
-    reviews: 112,
-    category: "Arts & Crafts",
-    company: "Crayola",
-    isNew: false,
-    isSale: true,
-  },
-  {
-    id: 16,
-    name: "Smart Watch - Fitness Tracker",
-    price: 199.99,
-    originalPrice: 249.99,
-    image: smartwatchImage, // Using existing image as placeholder
-    rating: 4.4,
-    reviews: 567,
-    category: "Electronics",
-    company: "Apple",
-    isNew: true,
-    isSale: true,
-  },
-];
 
-const Index = () => {
-  const [products, setProducts] = useState<Product[]>(sampleProducts);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);
+
+// const Index = () => {
+//   const [products, setProducts] = useState<Product[]>(sampleProducts);
+//   const [filteredProducts, setFilteredProducts] = useState<Product[]>(sampleProducts);
+  const Index = () => {
+  // const { products } = useProducts();
+  const { products, rateProduct } = useProducts();
+  const { addToCart, getCartCount } = useCart();
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [searchQuery, setSearchQuery] = useState("");
-  const [cartItems, setCartItems] = useState<Product[]>([]);
+  // const [cartItems, setCartItems] = useState<Product[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => {
+    setFilteredProducts(products);
+  }, [products]);
+
   // Get featured products (new and sale items)
   const featuredProducts = products.filter(p => p.isNew || p.isSale);
-  const bestSellers = products.filter(p => p.reviews > 100).sort((a, b) => b.reviews - a.reviews);
+  // const bestSellers = products.filter(p => p.reviews > 100).sort((a, b) => b.reviews - a.reviews);
+  const bestSellers = products.filter(p => p.userRatings.length > 2).sort((a, b) => b.userRatings.length - a.userRatings.length);
   const electronicsProducts = products.filter(p => p.category === "Electronics");
 
   // Filter products based on search query and filters
@@ -276,7 +82,13 @@ const Index = () => {
 
     // Rating filter
     if (filters.rating > 0) {
-      filtered = filtered.filter(product => product.rating >= filters.rating);
+      // filtered = filtered.filter(product => product.rating >= filters.rating);
+      filtered = filtered.filter(product => {
+        const averageRating = product.userRatings.length > 0 
+          ? product.userRatings.reduce((sum, r) => sum + r.rating, 0) / product.userRatings.length 
+          : 0;
+        return averageRating >= filters.rating;
+      });
     }
 
     return filtered;
@@ -311,14 +123,14 @@ const Index = () => {
   };
 
   const handleAddToCart = (product: Product) => {
-    setCartItems(prev => {
-      const existingItem = prev.find(item => item.id === product.id);
-      if (existingItem) {
-        return prev; // Don't add duplicate
-      }
-      return [...prev, product];
-    });
-    
+    // setCartItems(prev => {
+    //   const existingItem = prev.find(item => item.id === product.id);
+    //   if (existingItem) {
+    //     return prev; // Don't add duplicate
+    //   }
+    //   return [...prev, product];
+    // });
+    addToCart(product);
     toast({
       title: "Added to cart",
       description: `${product.name} has been added to your cart.`,
@@ -327,8 +139,8 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onSearch={handleSearch} cartCount={cartItems.length} />
-      
+      {/* <Header onSearch={handleSearch} cartCount={cartItems.length} /> */}
+      <Header onSearch={handleSearch} cartCount={getCartCount()} />
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="text-center py-12 mb-8">
@@ -416,6 +228,13 @@ const Index = () => {
               <ProductGrid
                 products={filteredProducts}
                 onAddToCart={handleAddToCart}
+                onRate={(productId, rating) => {
+                  rateProduct(productId, rating);
+                  toast({
+                    title: "Rating submitted",
+                    description: "Thank you for rating this product!",
+                  });
+                }}
                 isLoading={isLoading}
               />
             </div>

@@ -65,9 +65,16 @@ export function ProductCarousel({ products, title, onAddToCart }: ProductCarouse
                     <div className="flex items-center gap-1 mb-2">
                       <div className="flex items-center gap-1">
                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                        <span className="text-xs">{product.rating}</span>
+                        {/* <span className="text-xs">{product.rating}</span> */}
+                        <span className="text-xs">
+                          {product.userRatings.length > 0 
+                            ? (product.userRatings.reduce((sum, r) => sum + r.rating, 0) / product.userRatings.length).toFixed(1)
+                            : '0.0'
+                          }
+                        </span>
                       </div>
-                      <span className="text-xs text-muted-foreground">({product.reviews})</span>
+                      {/* <span className="text-xs text-muted-foreground">({product.reviews})</span> */}
+                      <span className="text-xs text-muted-foreground">({product.userRatings.length})</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-primary">${product.price}</span>

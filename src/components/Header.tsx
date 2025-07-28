@@ -1,6 +1,7 @@
 
 import { useState } from "react";
-import { Search, ShoppingCart, Menu, X, User, Settings } from "lucide-react";
+// import { Search, ShoppingCart, Menu, X, User, Settings } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, User, Settings, Heart } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,9 +28,9 @@ export function Header({ onSearch, cartCount }: HeaderProps) {
 
   const handleSearchChange = (value: string) => {
     setSearchQuery(value);
-    if (location.pathname === '/products') {
-      onSearch(value);
-    }
+    // if (location.pathname === '/products') {
+    //   onSearch(value);
+    // }
   };
 
   const navigationLinks = [
@@ -99,14 +100,31 @@ export function Header({ onSearch, cartCount }: HeaderProps) {
               </Button>
             </Link>
             
-            <Button variant="ghost" size="icon" className="relative">
+            {/* <Button variant="ghost" size="icon" className="relative">
               <ShoppingCart className="h-5 w-5" />
               {cartCount > 0 && (
                 <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
                   {cartCount}
                 </Badge>
               )}
-            </Button>
+            </Button> */}
+
+            <Link to="/wishlist">
+              <Button variant="ghost" size="icon">
+                <Heart className="h-5 w-5" />
+              </Button>
+            </Link>
+            
+            <Link to="/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <Badge className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                    {cartCount}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
 
             {/* Mobile Menu Button */}
             <Button

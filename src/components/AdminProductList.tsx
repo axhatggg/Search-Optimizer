@@ -51,9 +51,16 @@ export function AdminProductList({ products, onEdit, onDelete }: AdminProductLis
                         
                         <div className="flex items-center gap-1">
                           <Star className="h-4 w-4 fill-primary text-primary" />
-                          <span className="text-sm">{product.rating}</span>
+                          {/* <span className="text-sm">{product.rating}</span> */}
+                          <span className="text-sm">
+                            {product.userRatings.length > 0 
+                              ? (product.userRatings.reduce((sum, r) => sum + r.rating, 0) / product.userRatings.length).toFixed(1)
+                              : '0.0'
+                            }
+                          </span>
                           <span className="text-sm text-muted-foreground">
-                            ({product.reviews})
+                            {/* ({product.reviews}) */}
+                            ({product.userRatings.length})
                           </span>
                         </div>
                       </div>

@@ -7,6 +7,7 @@ import { FilterPanel, FilterState } from "@/components/FilterPanel";
 import { Product } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 // Import product images
 import headphonesImage from "@/assets/headphones.jpg";
@@ -20,147 +21,29 @@ import bookImage from "@/assets/book.jpg";
 import gamingmouseImage from "@/assets/gamingmouseImage.jpeg";
 import denimjacketImage from "@/assets/denimjacketImage.jpeg";
 
-// Extended products data for the products page
-const allProducts: Product[] = [
-  {
-    id: 1,
-    name: "Wireless Bluetooth Headphones",
-    price: 79.99,
-    originalPrice: 99.99,
-    image: headphonesImage,
-    rating: 4.5,
-    reviews: 128,
-    category: "Electronics",
-    company: "Sony",
-    isNew: true,
-    isSale: true,
-  },
-  {
-    id: 2,
-    name: "Premium Cotton T-Shirt",
-    price: 24.99,
-    image: tshirtImage,
-    rating: 4.2,
-    reviews: 85,
-    category: "Clothing",
-    company: "Nike",
-    gender: "Unisex",
-    isNew: false,
-    isSale: false,
-  },
-  {
-    id: 3,
-    name: "Smart Home Security Camera",
-    price: 149.99,
-    originalPrice: 199.99,
-    image: securityCameraImage,
-    rating: 4.7,
-    reviews: 203,
-    category: "Electronics",
-    company: "Ring",
-    isNew: true,
-    isSale: true,
-  },
-  {
-    id: 4,
-    name: "Organic Coffee Beans - 1lb",
-    price: 16.99,
-    image: coffeeImage,
-    rating: 4.8,
-    reviews: 156,
-    category: "Home",
-    company: "Starbucks",
-    isNew: false,
-    isSale: false,
-  },
-  {
-    id: 5,
-    name: "Yoga Mat - Extra Thick",
-    price: 39.99,
-    originalPrice: 59.99,
-    image: yogaMatImage,
-    rating: 4.4,
-    reviews: 92,
-    category: "Sports",
-    company: "Lululemon",
-    isNew: false,
-    isSale: true,
-  },
-  {
-    id: 6,
-    name: "Moisturizing Face Cream",
-    price: 32.99,
-    image: faceCreamImage,
-    rating: 4.6,
-    reviews: 174,
-    category: "Beauty",
-    company: "Olay",
-    isNew: true,
-    isSale: false,
-  },
-  {
-    id: 7,
-    name: "Smartphone Case - Clear",
-    price: 19.99,
-    originalPrice: 29.99,
-    image: phoneCaseImage,
-    rating: 4.3,
-    reviews: 67,
-    category: "Electronics",
-    company: "Apple",
-    isNew: false,
-    isSale: true,
-  },
-  {
-    id: 8,
-    name: "Bestselling Novel Book",
-    price: 14.99,
-    image: bookImage,
-    rating: 4.9,
-    reviews: 312,
-    category: "Books",
-    company: "Penguin",
-    isNew: true,
-    isSale: false,
-  },
-  // Additional products for the products page
-  {
-    id: 9,
-    name: "Gaming Mouse - RGB",
-    price: 45.99,
-    image: gamingmouseImage, // Using placeholder
-    rating: 4.6,
-    reviews: 89,
-    category: "Electronics",
-    company: "Logitech",
-    isNew: false,
-    isSale: false,
-  },
-  {
-    id: 10,
-    name: "Casual Denim Jacket",
-    price: 59.99,
-    originalPrice: 79.99,
-    image: denimjacketImage, // Using placeholder
-    rating: 4.3,
-    reviews: 45,
-    category: "Clothing",
-    company: "Levi's",
-    gender: "Men",
-    isNew: true,
-    isSale: true,
-  },
-];
 
-const Products = () => {
+
+// const Products = () => {
+//   const [searchParams] = useSearchParams();
+//   const [products] = useState<Product[]>(allProducts);
+//   const [filteredProducts, setFilteredProducts] = useState<Product[]>(allProducts);
+  import { useProducts } from "@/contexts/ProductsContext";
+
+  const Products = () => {
+  // const { products } = useProducts();
+  const { products, rateProduct } = useProducts();
+  const { addToCart, getCartCount } = useCart();
   const [searchParams] = useSearchParams();
-  const [products] = useState<Product[]>(allProducts);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(allProducts);
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
   const [searchQuery, setSearchQuery] = useState("");
-  const [cartItems, setCartItems] = useState<Product[]>([]);
+  // const [cartItems, setCartItems] = useState<Product[]>([]);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    setFilteredProducts(products);
+  }, [products]);
 
   useEffect(() => {
     const searchParam = searchParams.get('search');
@@ -191,7 +74,13 @@ const Products = () => {
     );
 
     if (filters.rating > 0) {
-      filtered = filtered.filter(product => product.rating >= filters.rating);
+      // filtered = filtered.filter(product => product.rating >= filters.rating);
+      filtered = filtered.filter(product => {
+        const averageRating = product.userRatings.length > 0 
+          ? product.userRatings.reduce((sum, r) => sum + r.rating, 0) / product.userRatings.length 
+          : 0;
+        return averageRating >= filters.rating;
+      });
     }
 
     return filtered;
@@ -224,13 +113,14 @@ const Products = () => {
   };
 
   const handleAddToCart = (product: Product) => {
-    setCartItems(prev => {
-      const existingItem = prev.find(item => item.id === product.id);
-      if (existingItem) {
-        return prev;
-      }
-      return [...prev, product];
-    });
+    // setCartItems(prev => {
+    //   const existingItem = prev.find(item => item.id === product.id);
+    //   if (existingItem) {
+    //     return prev;
+    //   }
+    //   return [...prev, product];
+    // });
+    addToCart(product);
     
     toast({
       title: "Added to cart",
@@ -240,8 +130,8 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onSearch={handleSearch} cartCount={cartItems.length} />
-      
+      {/* <Header onSearch={handleSearch} cartCount={cartItems.length} /> */}
+      <Header onSearch={handleSearch} cartCount={getCartCount()} />
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-4">All Products</h1>
@@ -283,6 +173,13 @@ const Products = () => {
             <ProductGrid
               products={filteredProducts}
               onAddToCart={handleAddToCart}
+              onRate={(productId, rating) => {
+                rateProduct(productId, rating);
+                toast({
+                  title: "Rating submitted",
+                  description: "Thank you for rating this product!",
+                });
+              }}
               isLoading={isLoading}
             />
           </div>

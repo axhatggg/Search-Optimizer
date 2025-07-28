@@ -2,6 +2,14 @@ import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { UserRating } from "@/components/UserRating";
+import { useCart } from "@/contexts/CartContext";
+
+export interface UserRating {
+  userId: string;
+  rating: number;
+  timestamp: Date;
+}
 
 export interface Product {
   id: number;
@@ -9,24 +17,44 @@ export interface Product {
   price: number;
   originalPrice?: number;
   image: string;
-  rating: number;
-  reviews: number;
+  // rating: number;
+  // reviews: number;
   category: string;
   company: string;
   gender?: 'Men' | 'Women' | 'Unisex';
   isNew?: boolean;
   isSale?: boolean;
+  userRatings: UserRating[];
 }
 
 interface ProductCardProps {
   product: Product;
-  onAddToCart: (product: Product) => void;
+  // onAddToCart: (product: Product) => void;
+  onAddToCart?: (product: Product) => void;
+  onRate?: (productId: number, rating: number) => void;
 }
 
-export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+// export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  export function ProductCard({ product, onAddToCart, onRate }: ProductCardProps) {
+    const { addToCart, addToWishlist, removeFromWishlist, isInWishlist } = useCart();
   const discountPercentage = product.originalPrice 
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
+    const handleAddToCart = () => {
+      if (onAddToCart) {
+        onAddToCart(product);
+      } else {
+        addToCart(product);
+      }
+    };
+  
+    const handleWishlistToggle = () => {
+      if (isInWishlist(product.id)) {
+        removeFromWishlist(product.id);
+      } else {
+        addToWishlist(product);
+      }
+    };
 
   return (
     <Card className="group h-full overflow-hidden border-border/50 hover:border-primary/20 transition-all duration-300 hover:shadow-product animate-fade-in">
@@ -53,14 +81,20 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="absolute top-2 right-2 h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background/90 opacity-0 group-hover:opacity-100 transition-opacity"
+          // className="absolute top-2 right-2 h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background/90 opacity-0 group-hover:opacity-100 transition-opacity"
+          onClick={handleWishlistToggle}
+          className={`absolute top-2 right-2 h-8 w-8 bg-background/80 backdrop-blur-sm hover:bg-background/90 opacity-0 group-hover:opacity-100 transition-opacity ${
+            isInWishlist(product.id) ? 'text-red-500' : ''
+          }`}
         >
-          <Heart className="h-4 w-4" />
+          {/* <Heart className="h-4 w-4" /> */}
+          <Heart className={`h-4 w-4 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
         </Button>
 
         {/* Quick Add Button */}
         <Button
-          onClick={() => onAddToCart(product)}
+          // onClick={() => onAddToCart(product)}
+          onClick={handleAddToCart}
           className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-primary text-primary-foreground hover:bg-primary/90"
         >
           <ShoppingCart className="h-4 w-4 mr-2" />
@@ -80,7 +114,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           )}
           
           {/* Rating */}
-          <div className="flex items-center gap-1">
+          {/* <div className="flex items-center gap-1">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <Star
@@ -96,7 +130,13 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
             <span className="text-xs text-muted-foreground">
               ({product.reviews})
             </span>
-          </div>
+          </div> */}
+          {/* User Rating Component */}
+          <UserRating 
+            productId={product.id}
+            userRatings={product.userRatings}
+            onRate={onRate || (() => {})}
+          />
         </div>
       </CardContent>
 
