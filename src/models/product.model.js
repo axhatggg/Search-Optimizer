@@ -48,6 +48,17 @@ count : {
     ref: "User",
     required: true
   },
+  averageRating: {
+    type: Number,
+    default: 0,
+    min: [0, "Rating cannot be less than 0"],
+    max: [5, "Rating cannot exceed 5"]
+  },
+  totalRatings: {
+    type: Number,
+    default: 0,
+    min: [0, "Total ratings cannot be negative"]
+  },
   
 }, {timestamps: true});
 
