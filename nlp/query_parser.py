@@ -1,13 +1,19 @@
 import spacy
 import re
 import json
+import os
 from rapidfuzz import process, fuzz
 
 nlp = spacy.load("en_core_web_sm")
 
-# Load synonyms from JSON
-with open("synonym.json", "r") as f:
+# Get absolute path to synonym.json
+base_dir = os.path.dirname(__file__)
+synonym_path = os.path.join(base_dir, "synonym.json")
+
+# Load synonyms from JSON safely
+with open(synonym_path, "r") as f:
     synonym_data = json.load(f)
+
 
 SYNONYM_MAP = synonym_data  # expects 'categories', 'brands', etc.
 
