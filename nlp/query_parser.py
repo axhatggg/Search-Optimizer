@@ -1,68 +1,89 @@
 import spacy
 import re
+import json
 from rapidfuzz import process, fuzz
 
-# Load spaCy English model
 nlp = spacy.load("en_core_web_sm")
 
-def fuzzy_match(token, choices, threshold=70):
-    match, score, _ = process.extractOne(token, choices, scorer=fuzz.ratio)
-    return match if score >= threshold else None
+# Load synonyms from JSON
+with open("synonym.json", "r") as f:
+    synonym_data = json.load(f)
 
-# Original word lists
-RAW_CATEGORIES = ["sneakers", "shoes", "sandals", "boots", "heels", "flats", "slippers", "phone", "phones", "mobile", "smartphone","earphone"]
+SYNONYM_MAP = synonym_data  # expects 'categories', 'brands', etc.
+
+MULTIWORD_SYNONYM_PATTERNS = [
+    (r"smart phones?", "smartphone"),
+    (r"running shoes?", "sports shoes")
+]
+
+# Global lists that can be updated
+RAW_CATEGORIES = ["shoes", "sandals", "boots", "heels", "flats", "slippers", "phone", "phones", "mobile", "smartphone", "earphone"]
 COLORS = ["red", "blue", "black", "white", "green", "yellow", "pink", "brown", "grey", "orange", "purple"]
 GENDERS = ["men", "women", "boys", "girls", "unisex"]
+BRANDS = ["nike", "adidas", "puma", "reebok", "skechers", "new balance", "asics", "fila", "converse", "vans", "woodland", "red tape", "bata", "h&m", "zara", "campus", "sparx", "crocs", "iphone", "samsung", "apple", "xiaomi", "oneplus", "oppo", "vivo"]
 
-# Lemmatize category list for consistency
+def add_to_categories(category):
+    """Add a new category to the list if not already present"""
+    if category and category.lower() not in [cat.lower() for cat in RAW_CATEGORIES]:
+        RAW_CATEGORIES.append(category.lower())
+        # Update the lemmatized categories
+        global CATEGORIES
+        CATEGORIES = lemmatize_list(RAW_CATEGORIES)
+        print(f"✅ Added category: {category}")
+
+def add_to_colors(color):
+    """Add a new color to the list if not already present"""
+    if color and color.lower() not in [col.lower() for col in COLORS]:
+        COLORS.append(color.lower())
+        print(f"✅ Added color: {color}")
+
+def add_to_brands(brand):
+    """Add a new brand to the list if not already present"""
+    if brand and brand.lower() not in [br.lower() for br in BRANDS]:
+        BRANDS.append(brand.lower())
+        print(f"✅ Added brand: {brand}")
+
+def add_to_genders(gender):
+    """Add a new gender to the list if not already present"""
+    if gender and gender.lower() not in [gen.lower() for gen in GENDERS]:
+        GENDERS.append(gender.lower())
+        print(f"✅ Added gender: {gender}")
+
+def update_lists_from_product(product):
+    """Update all lists based on a product's attributes"""
+    if product.get("category"):
+        add_to_categories(product["category"])
+    if product.get("color"):
+        add_to_colors(product["color"])
+    if product.get("brand"):
+        add_to_brands(product["brand"])
+    if product.get("gender"):
+        add_to_genders(product["gender"])
+
 def lemmatize_list(word_list):
     return list(set([token.lemma_ for token in nlp(" ".join(word_list))]))
 
 CATEGORIES = lemmatize_list(RAW_CATEGORIES)
 
-# Add known brands list
-BRANDS = ["nike", "adidas", "puma", "reebok", "skechers", "new balance", "asics", "fila", "converse", "vans", "woodland", "red tape", "bata", "h&m", "zara", "campus", "sparx", "crocs", "iphone", "samsung", "apple", "xiaomi", "oneplus", "oppo", "vivo"]
-
-# Synonym map (single-word)
-SYNONYM_MAP = {
-    "airpod": "earphones",
-    "headphone": "earphones",
-    "earphone": "earphones",
-
-    "kicks": "shoes",
-    "sneaker": "shoes",
-
-    "mobile": "phone",
-    "smartphone": "phone",
-    "cellphone": "phone"
-}
-
-# Multiword synonym replacements: (regex_pattern, replacement)
-MULTIWORD_SYNONYM_PATTERNS = [
-    (r"running shoes", "shoes"),
-    (r"basketball shoes", "shoes"),
-    (r"tennis shoes", "shoes"),
-    (r"mobile phone", "phone"),
-    (r"cell phone", "phone"),
-    (r"flip flops", "slippers"),
-    (r"canvas shoes", "shoes"),
-]
-
-# Price regex patterns
 PRICE_PATTERNS = [
-    (r"below (\d+)", "<"),
-    (r"under (\d+)", "<"),
-    (r"less than (\d+)", "<"),
-    (r"above (\d+)", ">"),
-    (r"over (\d+)", ">"),
-    (r"greater than (\d+)", ">"),
-    (r"upto (\d+)", "<="),
-    (r"up to (\d+)", "<="),
     (r"between (\d+) and (\d+)", "between"),
+    (r"(?:under|below|less than)\s*\$?(\d+)", "<"),
+    (r"(?:above|over|greater than)\s*\$?(\d+)", ">"),
+    (r"(?:upto|up to)\s*\$?(\d+)", "<="),
 ]
+
+def fuzzy_match(token, choices, threshold=75):
+    match, score, _ = process.extractOne(token, choices, scorer=fuzz.ratio)
+    return match if score >= threshold else None
 
 def normalize_token(token):
-    return SYNONYM_MAP.get(token.lower(), token.lower())
+    token = token.lower()
+    for field in ["categories", "brands", "colors", "genders"]:
+        if field in SYNONYM_MAP:
+            for key, synonyms in SYNONYM_MAP[field].items():
+                if token in synonyms:
+                    return key
+    return token
 
 def apply_multiword_synonyms(query):
     for pattern, replacement in MULTIWORD_SYNONYM_PATTERNS:
@@ -70,106 +91,101 @@ def apply_multiword_synonyms(query):
     return query
 
 def parse_query(query):
-    query = apply_multiword_synonyms(query.lower())
+    query = query.lower()
+    query = apply_multiword_synonyms(query)
     doc = nlp(query)
 
     result = {
+        "keywords": [],
         "category": None,
-        "color": [],
-        "price_filter": None,
+        "brand": None,
+        "color": None,
         "gender": None,
-        "brand": None
+        "price_min": None,
+        "price_max": None
     }
 
-    # Category with fuzzy matching
-    for token in doc:
-        normalized = normalize_token(token.lemma_)
-        matched_category = fuzzy_match(normalized, CATEGORIES)
-        if matched_category:
-            result["category"] = matched_category
-            break
-
-    # Color with fuzzy matching
-    found_colors = set()
-    for token in doc:
-        normalized = normalize_token(token.text)
-        matched_color = fuzzy_match(normalized, COLORS)
-        if matched_color:
-            found_colors.add(matched_color)
-    if found_colors:
-        result["color"] = list(found_colors)
-
-    # Gender with fuzzy matching
-    for token in doc:
-        normalized = normalize_token(token.text)
-        matched_gender = fuzzy_match(normalized, GENDERS)
-        if matched_gender:
-            result["gender"] = matched_gender
-            break
-
-    # Price
     for pattern, op in PRICE_PATTERNS:
         m = re.search(pattern, query)
         if m:
             if op == "between":
-                result["price_filter"] = {
-                    "operator": op,
-                    "min": int(m.group(1)),
-                    "max": int(m.group(2))
-                }
+                result["price_min"] = int(m.group(1))
+                result["price_max"] = int(m.group(2))
             else:
-                result["price_filter"] = {
-                    "operator": op,
-                    "value": int(m.group(1))
-                }
+                val = int(m.group(1))
+                if op in ("<", "<="):
+                    result["price_max"] = val
+                elif op in (">", ">="):
+                    result["price_min"] = val
             break
 
-    # Brand Detection with fuzzy matching
-    brand_candidates = set()
+    seen_keywords = set()
 
-    # Fuzzy match brands
     for token in doc:
-        normalized = normalize_token(token.text)
-        matched_brand = fuzzy_match(normalized, BRANDS)
-        # print(f"Normalized: {normalized}")
-        # print(f"Matched brand: {matched_brand}")
-        if matched_brand:
-            brand_candidates.add(matched_brand)
+        raw_text = token.text.lower()
+        lemma_text = token.lemma_.lower()
 
-    # NER detection
-    for ent in doc.ents:
-        if ent.label_ in ["ORG", "PRODUCT"]:
-            ent_text = ent.text.lower()
-            if not any(fuzzy_match(ent_text, [brand]) for brand in brand_candidates):
-                brand_candidates.add(ent_text)
+        norm_token = normalize_token(raw_text)
+        norm_lemma = normalize_token(lemma_text)
 
-    # Substring match for multi-word brands
-    for brand in BRANDS:
-        if brand in query:
-            brand_candidates.add(brand)
+        # 👇 Category: normalize + lemmatize
+        if result["category"] is None:
+            cat_token = nlp(norm_token)[0].lemma_
+            cat_lemma = nlp(norm_lemma)[0].lemma_
+            if cat_token in CATEGORIES:
+                result["category"] = cat_token
+                continue
+            if cat_lemma in CATEGORIES:
+                result["category"] = cat_lemma
+                continue
+            cat = fuzzy_match(cat_lemma, CATEGORIES)
+            if cat:
+                result["category"] = cat
+                continue
 
-    if brand_candidates:
-        result["brand"] = list(brand_candidates)
+        # Color
+        if result["color"] is None:
+            if norm_token in COLORS:
+                result["color"] = norm_token
+                continue
+            col = fuzzy_match(norm_token, COLORS)
+            if col:
+                result["color"] = col
+                continue
 
+        # Gender
+        if result["gender"] is None:
+            if norm_token in GENDERS:
+                result["gender"] = norm_token
+                continue
+            gen = fuzzy_match(norm_token, GENDERS)
+            if gen:
+                result["gender"] = gen
+                continue
+
+        # Brand
+        if result["brand"] is None:
+            if norm_token in BRANDS:
+                result["brand"] = norm_token
+                continue
+            br = fuzzy_match(norm_token, BRANDS)
+            if br:
+                result["brand"] = br
+                continue
+
+        if not token.is_stop and not token.is_punct and not token.like_num:
+            seen_keywords.add(token.text)
+
+    result["keywords"] = list(seen_keywords)
     return result
 
+# Optional: test
 if __name__ == "__main__":
-    # Example usage
-    queries = [
-        "red Niki sneakers below 1500 for women",
-        "blue shoes above 2000 for men",
-        "black boots between 1000 and 3000 for girls",
-        "white sandals under 1200 for boys",
-        "pink slippers up to 900",
-        "green heels less than 2000",
-        "orange flats over 1300 for unisex",
-        "iphon under 2000",
-        "I want AirPods under 2000 for girls",
-        "canvas shoes below 1000 for men",
-        "flip flops under 500"
+    sample_queries = [
+        "black puma sneakers for men under 3000"
     ]
 
-    for q in queries:
+    for q in sample_queries:
         print(f"Query: {q}")
         print(parse_query(q))
-        print()
+        print("-" * 40)

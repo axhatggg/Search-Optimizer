@@ -4,12 +4,13 @@ from query_parser import parse_query
 
 if __name__ == "__main__":
     # Clean up index for fresh run (development only)
-    if es.indices.exists(index=INDEX_NAME):
-        es.indices.delete(index=INDEX_NAME)
+    if es.index_exists(index=INDEX_NAME):
+        print(f"🗑️  Deleting existing index: {INDEX_NAME}")
+        es.delete_index(index=INDEX_NAME)
+    
     create_index()
     index_sample_data()
-
-    es.indices.refresh(index=INDEX_NAME)
+    es.refresh(index=INDEX_NAME)
 
     # Example queries
     queries = [

@@ -1,14 +1,156 @@
-from elasticsearch import Elasticsearch, helpers
+import os
+import requests
+import json
+from urllib3 import disable_warnings
+from urllib3.exceptions import InsecureRequestWarning
 
-# Connect to local Elasticsearch instance
-es = Elasticsearch("http://localhost:9200", verify_certs=False)
+# Load Bonsai credentials
+import config
 
-INDEX_NAME = 'products'
+# Load environment variables from .env file if it exists
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # python-dotenv not installed, skip loading .env file
+    pass
+
+# Disable SSL warnings
+disable_warnings(InsecureRequestWarning)
+
+class SimpleElasticsearch:
+    def __init__(self, host, username, password):
+        self.host = host.rstrip('/')
+        self.auth = (username, password)
+        self.session = requests.Session()
+        self.session.auth = self.auth
+        self.session.verify = False
+        
+    def _request(self, method, path, data=None):
+        """Make HTTP request to Elasticsearch"""
+        url = f"{self.host}{path}"
+        headers = {"Content-Type": "application/json"}
+        
+        if data:
+            data = json.dumps(data)
+            
+        response = self.session.request(method, url, data=data, headers=headers)
+        
+        if response.status_code >= 400:
+            raise Exception(f"Elasticsearch error {response.status_code}: {response.text}")
+            
+        return response.json() if response.content else {}
+    
+    def ping(self):
+        """Test connection"""
+        try:
+            self._request('GET', '/')
+            return True
+        except:
+            return False
+    
+    def info(self):
+        """Get cluster info"""
+        return self._request('GET', '/')
+    
+    def index_exists(self, index):
+        """Check if index exists"""
+        try:
+            self._request('HEAD', f'/{index}')
+            return True
+        except:
+            return False
+    
+    def create_index(self, index, body=None):
+        """Create index"""
+        return self._request('PUT', f'/{index}', body)
+    
+    def delete_index(self, index):
+        """Delete index"""
+        return self._request('DELETE', f'/{index}')
+    
+    def index_document(self, index, body, doc_id=None):
+        """Index a document"""
+        if doc_id:
+            return self._request('PUT', f'/{index}/_doc/{doc_id}', body)
+        else:
+            return self._request('POST', f'/{index}/_doc', body)
+    
+    def bulk(self, actions):
+        """Bulk index documents"""
+        bulk_data = []
+        for action in actions:
+            # Add action line
+            action_line = {"index": {"_index": action["_index"]}}
+            bulk_data.append(json.dumps(action_line))
+            # Add source line
+            bulk_data.append(json.dumps(action["_source"]))
+        
+        bulk_body = '\n'.join(bulk_data) + '\n'
+        
+        response = self.session.post(
+            f"{self.host}/_bulk",
+            data=bulk_body,
+            headers={"Content-Type": "application/x-ndjson"},
+            verify=False
+        )
+        
+        return response.json()
+    
+    def search(self, index, body):
+        """Search documents"""
+        return self._request('POST', f'/{index}/_search', body)
+    
+    def refresh(self, index):
+        """Refresh index"""
+        return self._request('POST', f'/{index}/_refresh')
+
+# Configuration for different environments
+def get_elasticsearch_client():
+    """
+    Create Elasticsearch client based on environment configuration
+    """
+    es_host = os.getenv('ELASTICSEARCH_HOST', 'http://localhost:9200')
+    es_username = os.getenv('ELASTICSEARCH_USERNAME')
+    es_password = os.getenv('ELASTICSEARCH_PASSWORD')
+    
+    print(f"🔗 Connecting to: {es_host}")
+    
+    if es_username and es_password:
+        # For hosted Elasticsearch with basic auth (like Bonsai)
+        es = SimpleElasticsearch(es_host, es_username, es_password)
+    else:
+        # For local development, fall back to requests
+        es = SimpleElasticsearch(es_host, '', '')
+    
+    # Test connection
+    try:
+        if es.ping():
+            info = es.info()
+            print(f"✅ Connected to Elasticsearch!")
+            print(f"   Cluster: {info.get('cluster_name', 'Unknown')}")
+            print(f"   Version: {info.get('version', {}).get('number', 'Unknown')}")
+            return es
+        else:
+            raise Exception("Ping failed")
+    except Exception as e:
+        print(f"❌ Failed to connect to Elasticsearch: {e}")
+        raise ConnectionError(f"Could not connect to Elasticsearch: {e}")
+
+# Initialize Elasticsearch client
+es = get_elasticsearch_client()
+
+INDEX_NAME = os.getenv('ELASTICSEARCH_INDEX', 'products')
+
+# Helper function to mimic the old helpers.bulk functionality
+def bulk_index(es_client, actions):
+    """Bulk index documents using our SimpleElasticsearch client"""
+    return es_client.bulk(actions)
 
 # Define a sample mapping for the product index (run once)
 def create_index():
-    if not es.indices.exists(index=INDEX_NAME):
-        es.indices.create(
+    if not es.index_exists(index=INDEX_NAME):
+        es.create_index(
             index=INDEX_NAME,
             body={
                 "settings": {
@@ -95,7 +237,7 @@ def index_sample_data():
             "_source": product
         } for product in products
     ]
-    helpers.bulk(es, actions)
+    bulk_index(es, actions)
 
 # Updated search function with scoring + ranking
 def search_products(category=None, color=None, brand=None, gender=None, price_filter=None, query_text=None):
@@ -151,25 +293,27 @@ def search_products(category=None, color=None, brand=None, gender=None, price_fi
     # print("Elasticsearch Query:")
     # print(json.dumps(query_body, indent=2))
 
-    es.indices.refresh(index=INDEX_NAME)  # Ensure docs are searchable
+    es.refresh(index=INDEX_NAME)  # Ensure docs are searchable
     res = es.search(index=INDEX_NAME, body=query_body)
     return [hit["_source"] for hit in res["hits"]["hits"]]
 
 # For standalone testing
 if __name__ == "__main__":
-    if es.indices.exists(index=INDEX_NAME):
-        es.indices.delete(index=INDEX_NAME)
+    if es.index_exists(index=INDEX_NAME):
+        es.delete_index(index=INDEX_NAME)
     create_index()
     index_sample_data()
-    es.indices.refresh(index=INDEX_NAME)
+    es.refresh(index=INDEX_NAME)
 
-    print("Search for red sneakers for women below 1500:")
+    print("Search for adidas shoes for women below 1500:")
+    print("--------------------------------")
+    print("Aksha1t")
     results = search_products(
-        category="shoe",
-        color="red",
-        gender="women",
-        price_filter={"operator": "<", "value": 1500},
-        query_text="red sneakers for women below 1500"
+        category="shoes",  # Changed from "shoe" to "shoes" to match Adidas
+        color="",
+        gender="",
+        price_filter={"operator": "<", "value": 1500000},
+        query_text="Adidas shoes below 1500000"
     )
     for r in results:
         print(r)
