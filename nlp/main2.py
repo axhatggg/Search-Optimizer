@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, Query
 from dotenv import load_dotenv
 import os
-from query_parser import parse_query, update_lists_from_product, RAW_CATEGORIES, COLORS, BRANDS, GENDERS
-from es_query import search_products, INDEX_NAME, es
+from .query_parser import parse_query, update_lists_from_product, RAW_CATEGORIES, COLORS, BRANDS, GENDERS
+from .es_query import search_products, INDEX_NAME, es
 from pydantic import BaseModel
 from typing import Optional
 import spacy
