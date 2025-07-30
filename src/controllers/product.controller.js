@@ -5,7 +5,7 @@ import asyncHandler from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // Add a new product
-const addProduct = asyncHandler(async (req, res) => {
+const   addProduct = asyncHandler(async (req, res) => {
     const { name, description, price, count, category, color, brand } = req.body;
 
         // console.log("Request body:", req.body);
@@ -147,4 +147,95 @@ const deleteProduct = asyncHandler(async (req, res) => {
     );
 });
 
-export { addProduct, updateProduct, deleteProduct };
+// Get all products with filtering, pagination, and search
+const getAllProducts = asyncHandler(async (req, res) => {
+    const { 
+        page = 1, 
+        limit = 10, 
+        search, 
+        category, 
+        brand, 
+        color, 
+        minPrice, 
+        maxPrice,
+        sortBy = "createdAt",
+        sortOrder = "desc"
+    } = req.query;
+
+    // Build filter object
+    let filter = {};
+    
+    // Search functionality
+    if (search) {
+        filter.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { description: { $regex: search, $options: "i" } },
+            { brand: { $regex: search, $options: "i" } }
+        ];
+    }
+    
+    // Category filter
+    if (category) {
+        filter.category = { $regex: category, $options: "i" };
+    }
+    
+    // Brand filter
+    if (brand) {
+        filter.brand = { $regex: brand, $options: "i" };
+    }
+    
+    // Color filter
+    if (color) {
+        filter.color = { $regex: color, $options: "i" };
+    }
+    
+    // Price range filter
+    if (minPrice || maxPrice) {
+        filter.price = {};
+        if (minPrice) filter.price.$gte = parseFloat(minPrice);
+        if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
+    }
+
+    // Pagination
+    const skip = (page - 1) * limit;
+    
+    // Sorting
+    const sortOptions = {};
+    sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
+
+    // Execute query
+    const products = await Product.find(filter)
+        .populate("owner", "username fullName")
+        .sort(sortOptions)
+        .skip(skip)
+        .limit(parseInt(limit));
+
+    // Get total count for pagination
+    const total = await Product.countDocuments(filter);
+
+    return res.status(200).json(
+        new ApiResponse(200, {
+            products,
+            pagination: {
+                currentPage: parseInt(page),
+                totalPages: Math.ceil(total / limit),
+                totalProducts: total,
+                hasNextPage: page < Math.ceil(total / limit),
+                hasPrevPage: page > 1,
+                limit: parseInt(limit)
+            },
+            filters: {
+                search,
+                category,
+                brand,
+                color,
+                minPrice,
+                maxPrice,
+                sortBy,
+                sortOrder
+            }
+        }, "Products retrieved successfully")
+    );
+});
+
+export { addProduct, updateProduct, deleteProduct, getAllProducts };

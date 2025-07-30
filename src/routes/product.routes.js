@@ -1,14 +1,14 @@
 import { Router } from "express";
-import { addProduct, updateProduct, deleteProduct } from "../controllers/product.controller.js";
+import { addProduct, updateProduct, deleteProduct, getAllProducts } from "../controllers/product.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
+// Public routes (no authentication required)
+router.route("/").get(getAllProducts);
 
-
-
-
+// Protected routes (authentication required)
 router.route("/add").post(
     verifyJWT,
     upload.fields([
