@@ -34,6 +34,12 @@ const userSchema = new Schema({
         
 
     },
+    role: {
+        type: String,
+        enum: ["customer", "admin"],
+        default: "customer",
+        required: true
+    },
       password: {
         type: String,
         required: [true, "Password toh dena hoga"],
@@ -75,6 +81,7 @@ const userSchema = new Schema({
                 email: this.email,
                 username: this.username,
                 fullName: this.fullName,
+                role: this.role,
             },
             process.env.ACCESS_TOKEN_SECRET,
             {

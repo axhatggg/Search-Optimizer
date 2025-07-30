@@ -42,7 +42,7 @@ const registerUser = asyncHandler(async (req, res) => {
   //check for user creation 
   //return response
 
-  const {fullName,email , username,password}  = req.body
+  const {fullName,email , username,password, role}  = req.body
   console.log(req.files);
   
   console.log("Yeah h naam", fullName);
@@ -64,6 +64,11 @@ const registerUser = asyncHandler(async (req, res) => {
   if(password=="")
   {
     throw new ApiError(400, "Password chahiye bhai");
+  }
+
+  // Validate role if provided
+  if(role && !["customer", "admin"].includes(role)) {
+    throw new ApiError(400, "Invalid role. Must be 'customer' or 'admin'");
   }
 
   const existedUser = await  User.findOne({$or: [{username}, {email}]})
@@ -96,7 +101,7 @@ const registerUser = asyncHandler(async (req, res) => {
     email,
      password,
     username : username.toLowerCase(),
-   
+    role: role || "customer", // Default to customer if no role provided
     avatar: avatar.url,
    
   })
