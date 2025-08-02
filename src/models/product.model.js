@@ -38,6 +38,15 @@ count : {
     trim: true,
     maxLength: [30, "Brand name should be less than 30 characters"]
   },
+  gender: {
+    type: String,
+    // required: [true, "Product brand is required"],
+    trim: true,
+    maxLength: [30, "Brand name should be less than 30 characters"],
+      enum: ["Male", "Female","Unisex"],
+        default: "Unisex",
+
+  },
   images: [
     {
       type : String
@@ -48,17 +57,17 @@ count : {
     ref: "User",
     required: true
   },
-  averageRating: {
-    type: Number,
-    default: 0,
-    min: [0, "Rating cannot be less than 0"],
-    max: [5, "Rating cannot exceed 5"]
-  },
-  totalRatings: {
-    type: Number,
-    default: 0,
-    min: [0, "Total ratings cannot be negative"]
-  },
+  // averageRating: {
+  //   type: Number,
+  //   default: 0,
+  //   min: [0, "Rating cannot be less than 0"],
+  //   max: [5, "Rating cannot exceed 5"]
+  // },
+  // totalRatings: {
+  //   type: Number,
+  //   default: 0,
+  //   min: [0, "Total ratings cannot be negative"]
+  // },
   
 }, {timestamps: true});
 
