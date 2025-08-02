@@ -25,7 +25,7 @@ class Product(BaseModel):
     brand: Optional[str] = ""
     color: Optional[str] = ""
     gender: Optional[str] = ""
-    price: int
+    price: float
     rating: Optional[float] = 0.0
     stock: Optional[int] = 0
     discount: Optional[int] = 0

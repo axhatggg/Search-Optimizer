@@ -5,7 +5,7 @@ from urllib3 import disable_warnings
 from urllib3.exceptions import InsecureRequestWarning
 
 # Load Bonsai credentials
-from . import config
+import config
 
 # Load environment variables from .env file if it exists
 try:
