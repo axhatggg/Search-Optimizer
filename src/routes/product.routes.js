@@ -9,12 +9,13 @@ const router = Router();
 // Public routes (no authentication required)
 router.route("/").get(getAllProducts);
 
-// Admin-only routes (admin authentication required)
+// Admin routes - JSON only (no images)
+router.route("/add-json").post(verifyAdmin, addProduct);
+
+// Admin routes - with file upload
 router.route("/add").post(
     verifyAdmin,
-    upload.fields([
-        { name: "images", maxCount: 5 }
-    ]),
+    upload.fields([{ name: "images", maxCount: 5 }]),
     addProduct
 );
 
