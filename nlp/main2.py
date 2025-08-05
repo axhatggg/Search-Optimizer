@@ -29,6 +29,7 @@ class Product(BaseModel):
     rating: Optional[float] = 0.0
     stock: Optional[int] = 0
     discount: Optional[int] = 0
+    photo_links: Optional[list[str]] = []
 
 app = FastAPI()
 
@@ -99,7 +100,8 @@ async def add_product(product: Product):
             "price": product.price,
             "rating": product.rating,
             "stock": product.stock,
-            "discount": product.discount
+            "discount": product.discount,
+            "photo_links": product.photo_links
         }
 
         # Update vocab lists using lemmatized values

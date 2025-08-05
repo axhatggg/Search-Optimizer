@@ -168,7 +168,8 @@ def create_index():
                         "price": {"type": "integer"},
                         "rating": {"type": "float"},
                         "stock": {"type": "integer"},
-                        "discount": {"type": "integer"}
+                        "discount": {"type": "integer"},
+                        "photo_links": {"type": "keyword"}
                     }
                 }
             }
