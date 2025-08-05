@@ -6,7 +6,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 
 // Add a new product
 const   addProduct = asyncHandler(async (req, res) => {
-    const { name, description, price, count, category, color, brand } = req.body;
+    const { name, description, price, count, category, color, brand, gender, discount } = req.body;
 
         // console.log("Request body:", req.body);
         
@@ -56,12 +56,45 @@ const   addProduct = asyncHandler(async (req, res) => {
         category: category.trim(),
         color: color.trim(),
         brand: brand.trim(),
+        gender: gender || "Unisex",
         images: imageUrls,
         owner: req.user._id // Add the logged-in user as owner
     });
 
     if (!product) {
         throw new ApiError(500, "Something went wrong while creating the product");
+    }
+
+    // Send product data to second server
+    const secondServerData = {
+        name: product.name,
+        description: product.description,
+        category: product.category,
+        brand: product.brand,
+        color: product.color,
+        gender: product.gender || "Unisex",
+        price: product.price,
+        stock: product.count,
+        discount: discount || 0
+    };
+
+    try {
+        const response = await fetch('https://search-optimizer-bibv.onrender.com/add-product', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(secondServerData)
+        });
+
+        if (!response.ok) {
+            console.error('Failed to sync with second server:', response.statusText);
+        } else {
+            console.log('Product successfully synced with second server');
+        }
+    } catch (error) {
+        console.error('Error syncing with second server:', error.message);
+        // Don't fail the main request if second server sync fails
     }
 
     return res.status(201).json(
