@@ -267,12 +267,27 @@ def search_products(category=None, color=None, brand=None, gender=None, price_fi
 
     should_clause = []
     if query_text:
-        should_clause.append({
-            "multi_match": {
-                "query": query_text,
-                "fields": ["name^3", "description", "category"]
+        # Add fuzzy matching for better handling of misspelled terms
+        should_clause.extend([
+            {
+                "multi_match": {
+                    "query": query_text,
+                    "fields": ["name^3", "description", "category"],
+                    "fuzziness": "AUTO",  # Enable fuzzy matching
+                    "prefix_length": 2,    # Minimum prefix length for fuzzy matching
+                    "max_expansions": 50   # Maximum number of terms to expand to
+                }
+            },
+            {
+                "multi_match": {
+                    "query": query_text,
+                    "fields": ["brand^2", "name^3"],
+                    "fuzziness": "AUTO",
+                    "prefix_length": 1,    # Lower prefix for brand matching
+                    "max_expansions": 20
+                }
             }
-        })
+        ])
 
     query_body = {
         "query": {
