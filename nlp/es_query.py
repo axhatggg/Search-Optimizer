@@ -175,6 +175,7 @@ def create_index():
             }
         )
 
+#delete index
 # Index sample data
 def index_sample_data():
     def lower_dict(d):
