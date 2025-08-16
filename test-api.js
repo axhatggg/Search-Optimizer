@@ -34,7 +34,7 @@ async function testEndpoint(endpoint) {
       },
     });
     
-    console.log(`✅ ${endpoint}: ${response.status} ${response.statusText}`);
+    console.log(` ${endpoint}: ${response.status} ${response.statusText}`);
     
     if (response.ok) {
       try {
@@ -46,13 +46,13 @@ async function testEndpoint(endpoint) {
       }
     }
   } catch (error) {
-    console.log(`❌ ${endpoint}: ${error.message}`);
+    console.log(` ${endpoint}: ${error.message}`);
   }
 }
 
 async function testAllEndpoints() {
-  console.log('🔍 Testing Search Optimizer API Endpoints\n');
-  console.log(`🌐 Base URL: ${API_BASE}\n`);
+  console.log(' Testing Search Optimizer API Endpoints\n');
+  console.log(` Base URL: ${API_BASE}\n`);
   
   for (const endpoint of endpoints) {
     await testEndpoint(endpoint);
@@ -60,7 +60,7 @@ async function testAllEndpoints() {
     await new Promise(resolve => setTimeout(resolve, 500));
   }
   
-  console.log('\n📋 Summary:');
+  console.log('\n Summary:');
   console.log('- If all endpoints return 404, your backend might not be fully deployed');
   console.log('- If some endpoints work, update the API configuration to match');
   console.log('- Check your backend deployment status on Render.com');

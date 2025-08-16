@@ -2,13 +2,13 @@
 
 This guide will help you connect your Search Optimizer frontend to your backend API.
 
-## 📋 Prerequisites
+##  Prerequisites
 
 - Your backend API is running and accessible
 - Your API supports the endpoints listed below
 - CORS is properly configured on your backend
 
-## 🚀 Quick Setup
+##  Quick Setup
 
 ### 1. Set Your API URL
 
@@ -81,7 +81,7 @@ GET  /user/orders
 GET  /user/addresses
 ```
 
-## 📝 API Response Format
+##  API Response Format
 
 ### Success Response
 ```json
@@ -120,7 +120,7 @@ GET  /user/addresses
 }
 ```
 
-## 🔧 Configuration
+##  Configuration
 
 ### Update API Base URL
 
@@ -145,7 +145,7 @@ export const API_ENDPOINTS = {
 };
 ```
 
-## 🛡️ Authentication
+##  Authentication
 
 The frontend expects JWT token-based authentication:
 
@@ -163,7 +163,7 @@ The frontend expects JWT token-based authentication:
 }
 ```
 
-## 🔄 Fallback Behavior
+##  Fallback Behavior
 
 The frontend includes intelligent fallback behavior:
 
@@ -172,7 +172,7 @@ The frontend includes intelligent fallback behavior:
 - **Network Errors**: Graceful degradation with user feedback
 - **Authentication**: Local state management when API is down
 
-## 🧪 Testing Your API
+##  Testing Your API
 
 ### 1. Health Check
 ```bash
@@ -191,7 +191,7 @@ curl -X POST http://your-api-url.com/api/auth/login \
 curl http://your-api-url.com/api/products
 ```
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -225,7 +225,7 @@ This will log all API requests and responses to the console.
 
 ## 📱 Features
 
-### ✅ Implemented
+###  Implemented
 - User authentication (login/register/logout)
 - Product browsing and search
 - Shopping cart management
@@ -236,13 +236,13 @@ This will log all API requests and responses to the console.
 - Responsive design
 - Offline fallback
 
-### 🔄 Real-time Features
+###  Real-time Features
 - Live cart updates
 - Real-time product search
 - Dynamic filtering
 - Instant feedback
 
-## 🚀 Deployment
+##  Deployment
 
 ### Environment Variables
 ```bash
@@ -261,7 +261,7 @@ npm run build
 # Deploy the dist/ folder to your hosting service
 ```
 
-## 📞 Support
+##  Support
 
 If you encounter issues:
 
