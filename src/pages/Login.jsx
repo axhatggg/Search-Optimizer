@@ -1,12 +1,6 @@
 import { useState } from "react";
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "@/integrations/firebase/config";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 
@@ -14,130 +8,92 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const [isLogin, setIsLogin] = useState(true);
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
     
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast({
-        title: "Success",
-        description: "You have been logged in successfully!",
-      });
+      if (isLogin) {
+        await signInWithEmailAndPassword(auth, email, password);
+      } else {
+        await createUserWithEmailAndPassword(auth, email, password);
+      }
       navigate("/");
     } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      toast({
-        title: "Success",
-        description: "Account created successfully!",
-      });
-      navigate("/");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
+      setError(error.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header onSearch={() => {}} cartCount={0} />
       
       <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-[calc(100vh-80px)]">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>Welcome</CardTitle>
-            <CardDescription>
-              Sign in to your account or create a new one
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="login" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="login">Login</TabsTrigger>
-                <TabsTrigger value="signup">Sign Up</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="login">
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign In"}
-                  </Button>
-                </form>
-              </TabsContent>
-              
-              <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
-                    <Input
-                      id="signup-email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
-                    <Input
-                      id="signup-password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Creating account..." : "Create Account"}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
-          </CardContent>
-        </Card>
+        <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+          <h2 className="text-2xl font-bold text-center mb-6 text-gray-900 dark:text-white">
+            {isLogin ? "Sign In" : "Create Account"}
+          </h2>
+          
+          {error && (
+            <div className="bg-red-100 dark:bg-red-900 border border-red-400 dark:border-red-700 text-red-700 dark:text-red-300 px-4 py-3 rounded mb-4">
+              {error}
+            </div>
+          )}
+          
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+            
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              />
+            </div>
+            
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 dark:bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-700 dark:hover:bg-blue-600 disabled:opacity-50"
+            >
+              {loading ? "Loading..." : (isLogin ? "Sign In" : "Create Account")}
+            </button>
+          </form>
+          
+          <div className="mt-4 text-center">
+            <button
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              {isLogin ? "Need an account? Sign up" : "Already have an account? Sign in"}
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

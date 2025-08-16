@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Plus} from "lucide-react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { AdminProductForm } from "@/components/AdminProductForm";
 import { AdminProductList } from "@/components/AdminProductList";
 import { useProducts } from "@/contexts/ProductsContext";
@@ -11,16 +10,13 @@ const Admin = () => {
   const { products, addProduct, updateProduct, deleteProduct } = useProducts();
   const [editingProduct, setEditingProduct] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const { toast } = useToast();
+  const [message, setMessage] = useState("");
 
   const handleAddProduct = (productData) => {
     addProduct(productData);
     setShowForm(false);
-    
-    toast({
-      title: "Product Added",
-      description: `${productData.name} has been added successfully.`,
-    });
+    setMessage(`${productData.name} has been added successfully.`);
+    setTimeout(() => setMessage(""), 3000);
   };
 
   const handleUpdateProduct = (productData) => {
@@ -29,22 +25,15 @@ const Admin = () => {
     updateProduct(editingProduct.id, productData);
     setEditingProduct(null);
     setShowForm(false);
-    
-    toast({
-      title: "Product Updated",
-      description: `${productData.name} has been updated successfully.`,
-    });
+    setMessage(`${productData.name} has been updated successfully.`);
+    setTimeout(() => setMessage(""), 3000);
   };
 
   const handleDeleteProduct = (productId) => {
     const productToDelete = products.find(p => p.id === productId);
     deleteProduct(productId);
-    
-    toast({
-      title: "Product Deleted",
-      description: `${productToDelete?.name} has been deleted successfully.`,
-      variant: "destructive",
-    });
+    setMessage(`${productToDelete?.name} has been deleted successfully.`);
+    setTimeout(() => setMessage(""), 3000);
   };
 
   const handleEditProduct = (product) => {
@@ -58,15 +47,15 @@ const Admin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header onSearch={() => {}} cartCount={0} />
       
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-              <p className="text-muted-foreground">Manage your product catalog</p>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
+              <p className="text-gray-600 dark:text-gray-400">Manage your product catalog</p>
             </div>
             
             {!showForm && (
@@ -77,6 +66,12 @@ const Admin = () => {
             )}
           </div>
         </div>
+
+        {message && (
+          <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 px-4 py-3 rounded mb-4">
+            {message}
+          </div>
+        )}
 
         {showForm ? (
           <AdminProductForm

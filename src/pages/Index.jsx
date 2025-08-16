@@ -6,7 +6,6 @@ import { ProductCarousel } from "@/components/ProductCarousel";
 import { HeroImageCarousel } from "@/components/HeroImageCarousel";
 import { FilterPanel } from "@/components/FilterPanel";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { useProducts } from "@/contexts/ProductsContext";
 import { useCart } from "@/contexts/CartContext";
 
@@ -35,7 +34,7 @@ const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     setFilteredProducts(products);
@@ -113,25 +112,23 @@ const Index = () => {
 
   const handleAddToCart = (product) => {
     addToCart(product);
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
+    setMessage(`${product.name} has been added to your cart.`);
+    setTimeout(() => setMessage(""), 3000);
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header onSearch={handleSearch} cartCount={getCartCount()} />
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="text-center py-12 mb-8">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 text-gray-900 dark:text-white">
             Discover Amazing Products
           </h1>
-          <p className="text-xl text-muted-foreground mb-8 animate-fade-in">
+          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
             Shop from thousands of products with fast delivery and great prices
           </p>
-          <div className="flex justify-center gap-4 animate-slide-up">
+          <div className="flex justify-center gap-4">
             <Button size="lg" className="h-12 px-8">
               Shop Now
             </Button>
@@ -190,11 +187,11 @@ const Index = () => {
             {/* Products Grid */}
             <div className="lg:w-3/4">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-semibold">
+                <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
                   {searchQuery ? `Search results for "${searchQuery}"` : "All Products"}
                 </h2>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">
                     {filteredProducts.length} products
                   </span>
                   <Button variant="ghost" size="icon">
@@ -206,15 +203,19 @@ const Index = () => {
                 </div>
               </div>
 
+              {message && (
+                <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 px-4 py-3 rounded mb-4">
+                  {message}
+                </div>
+              )}
+
               <ProductGrid
                 products={filteredProducts}
                 onAddToCart={handleAddToCart}
                 onRate={(productId, rating) => {
                   rateProduct(productId, rating);
-                  toast({
-                    title: "Rating submitted",
-                    description: "Thank you for rating this product!",
-                  });
+                  setMessage("Thank you for rating this product!");
+                  setTimeout(() => setMessage(""), 3000);
                 }}
                 isLoading={isLoading}
               />
@@ -224,8 +225,8 @@ const Index = () => {
       </main>
 
       {/* Footer */}
-      <footer className="bg-muted/30 mt-16 py-8 border-t">
-        <div className="container mx-auto px-4 text-center text-muted-foreground">
+      <footer className="bg-gray-100 dark:bg-gray-800 mt-16 py-8 border-t border-gray-200 dark:border-gray-700">
+        <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400">
           <p>&copy; 2025 Cartella. All rights reserved.</p>
           <p>Search Optimiser</p>
         </div>

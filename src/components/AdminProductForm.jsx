@@ -2,9 +2,6 @@ import { useState } from "react";
 import { Save, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export function AdminProductForm({ product, onSubmit, onCancel }) {
@@ -49,7 +46,7 @@ export function AdminProductForm({ product, onSubmit, onCancel }) {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Product Name</Label>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">Product Name</label>
               <Input
                 id="name"
                 value={formData.name}
@@ -60,7 +57,7 @@ export function AdminProductForm({ product, onSubmit, onCancel }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700">Category</label>
               <Input
                 id="category"
                 value={formData.category}
@@ -71,7 +68,7 @@ export function AdminProductForm({ product, onSubmit, onCancel }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="company">Company</Label>
+              <label htmlFor="company" className="block text-sm font-medium text-gray-700">Company</label>
               <Input
                 id="company"
                 value={formData.company}
@@ -82,7 +79,7 @@ export function AdminProductForm({ product, onSubmit, onCancel }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="gender">Gender (for clothing/shoes)</Label>
+              <label htmlFor="gender" className="block text-sm font-medium text-gray-700">Gender (for clothing/shoes)</label>
               <select
                 id="gender"
                 value={formData.gender}
@@ -97,7 +94,7 @@ export function AdminProductForm({ product, onSubmit, onCancel }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="price">Price ($)</Label>
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700">Price ($)</label>
               <Input
                 id="price"
                 type="number"
@@ -110,7 +107,7 @@ export function AdminProductForm({ product, onSubmit, onCancel }) {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="originalPrice">Original Price ($)</Label>
+              <label htmlFor="originalPrice" className="block text-sm font-medium text-gray-700">Original Price ($)</label>
               <Input
                 id="originalPrice"
                 type="number"
@@ -123,7 +120,7 @@ export function AdminProductForm({ product, onSubmit, onCancel }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="image">Image URL</Label>
+            <label htmlFor="image" className="block text-sm font-medium text-gray-700">Image URL</label>
             <Input
               id="image"
               value={formData.image}
@@ -135,21 +132,25 @@ export function AdminProductForm({ product, onSubmit, onCancel }) {
 
           <div className="flex gap-6">
             <div className="flex items-center space-x-2">
-              <Checkbox
+              <input
+                type="checkbox"
                 id="isNew"
                 checked={formData.isNew}
-                onCheckedChange={(checked) => handleInputChange("isNew", checked)}
+                onChange={(e) => handleInputChange("isNew", e.target.checked)}
+                className="rounded"
               />
-              <Label htmlFor="isNew">New Product</Label>
+              <label htmlFor="isNew" className="text-sm">New Product</label>
             </div>
 
             <div className="flex items-center space-x-2">
-              <Checkbox
+              <input
+                type="checkbox"
                 id="isSale"
                 checked={formData.isSale}
-                onCheckedChange={(checked) => handleInputChange("isSale", checked)}
+                onChange={(e) => handleInputChange("isSale", e.target.checked)}
+                className="rounded"
               />
-              <Label htmlFor="isSale">On Sale</Label>
+              <label htmlFor="isSale" className="text-sm">On Sale</label>
             </div>
           </div>
 

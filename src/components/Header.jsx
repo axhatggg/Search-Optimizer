@@ -37,12 +37,12 @@ export function Header({ onSearch, cartCount }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-white/95 dark:bg-gray-900/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 dark:supports-[backdrop-filter]:bg-gray-900/60">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center space-x-2">
-            <Link to="/" className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent hover:opacity-80 transition-opacity">
+            <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:opacity-80 transition-opacity">
               Cartella
             </Link>
           </div>
@@ -53,10 +53,10 @@ export function Header({ onSearch, cartCount }) {
               <Link
                 key={link.name}
                 to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
+                className={`text-sm font-medium transition-colors hover:text-blue-600 dark:hover:text-blue-400 ${
                   isActivePath(link.path) 
-                    ? "text-primary border-b-2 border-primary pb-1" 
-                    : "text-muted-foreground"
+                    ? "text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400 pb-1" 
+                    : "text-gray-600 dark:text-gray-300"
                 }`}
               >
                 {link.name}
@@ -67,13 +67,13 @@ export function Header({ onSearch, cartCount }) {
           {/* Search Bar */}
           <form onSubmit={handleSearch} className="hidden md:flex items-center space-x-2 max-w-md flex-1 mx-8">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
               <Input
                 type="text"
                 placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-10 pr-4 h-10 w-full"
+                className="pl-10 pr-4 h-10 w-full dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               />
             </div>
           </form>
@@ -134,20 +134,20 @@ export function Header({ onSearch, cartCount }) {
         {/* Mobile Search */}
         <div className="md:hidden pb-4">
           <form onSubmit={handleSearch} className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
             <Input
               type="text"
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 pr-4 h-10 w-full"
+              className="pl-10 pr-4 h-10 w-full dark:bg-gray-800 dark:border-gray-700 dark:text-white"
             />
           </form>
         </div>
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <div className="md:hidden border-t py-4 animate-slide-up">
+          <div className="md:hidden border-t py-4">
             <nav className="flex flex-col space-y-2">
               {navigationLinks.map((link) => (
                 <Link
@@ -155,8 +155,8 @@ export function Header({ onSearch, cartCount }) {
                   to={link.path}
                   className={`text-sm font-medium px-2 py-2 rounded-md transition-colors ${
                     isActivePath(link.path) 
-                      ? "bg-primary/10 text-primary" 
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      ? "bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-400" 
+                      : "text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                   }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
@@ -165,7 +165,7 @@ export function Header({ onSearch, cartCount }) {
               ))}
               <Link
                 to="/admin"
-                className="text-sm font-medium px-2 py-2 rounded-md transition-colors text-muted-foreground hover:bg-muted hover:text-foreground"
+                className="text-sm font-medium px-2 py-2 rounded-md transition-colors text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Admin

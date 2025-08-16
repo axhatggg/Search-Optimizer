@@ -5,7 +5,6 @@ import { Header } from "@/components/Header";
 import { ProductGrid } from "@/components/ProductGrid";
 import { FilterPanel } from "@/components/FilterPanel";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
 import { useProducts } from "@/contexts/ProductsContext";
 
@@ -29,7 +28,7 @@ const Products = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
+  const [message, setMessage] = useState("");
 
   useEffect(() => {
     setFilteredProducts(products);
@@ -103,20 +102,17 @@ const Products = () => {
 
   const handleAddToCart = (product) => {
     addToCart(product);
-    
-    toast({
-      title: "Added to cart",
-      description: `${product.name} has been added to your cart.`,
-    });
+    setMessage(`${product.name} has been added to your cart.`);
+    setTimeout(() => setMessage(""), 3000);
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header onSearch={handleSearch} cartCount={getCartCount()} />
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-4">All Products</h1>
-          <p className="text-muted-foreground">Browse our complete collection of products</p>
+          <h1 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">All Products</h1>
+          <p className="text-gray-600 dark:text-gray-400">Browse our complete collection of products</p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
@@ -143,23 +139,27 @@ const Products = () => {
 
           <div className="lg:w-3/4">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-semibold">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white">
                 {searchQuery ? `Search results for "${searchQuery}"` : "All Products"}
               </h2>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
                 {filteredProducts.length} products
               </span>
             </div>
+
+            {message && (
+              <div className="bg-green-100 dark:bg-green-900 border border-green-400 dark:border-green-700 text-green-700 dark:text-green-300 px-4 py-3 rounded mb-4">
+                {message}
+              </div>
+            )}
 
             <ProductGrid
               products={filteredProducts}
               onAddToCart={handleAddToCart}
               onRate={(productId, rating) => {
                 rateProduct(productId, rating);
-                toast({
-                  title: "Rating submitted",
-                  description: "Thank you for rating this product!",
-                });
+                setMessage("Thank you for rating this product!");
+                setTimeout(() => setMessage(""), 3000);
               }}
               isLoading={isLoading}
             />

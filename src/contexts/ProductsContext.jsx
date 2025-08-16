@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { productService } from '@/services/productService';
 
-// Import product images
+// Import product images for fallback
 import headphonesImage from "@/assets/headphones.jpg";
 import tshirtImage from "@/assets/tshirt.jpg";
 import securityCameraImage from "@/assets/security-camera.jpg";
@@ -18,8 +19,8 @@ import wirelessphonechargerImage from "@/assets/wirelessphonechargerImage.jpeg";
 import greenteasetImage from "@/assets/greenteasetImage.webp";
 import runningshoesImage from "@/assets/runningshoesImage.webp";
 
-// Initial products data
-const initialProducts = [
+// Fallback products data
+const fallbackProducts = [
   {
     id: 1,
     name: "Wireless Bluetooth Headphones",
@@ -262,48 +263,141 @@ export const useProducts = () => {
 };
 
 export const ProductsProvider = ({ children }) => {
-  const [products, setProducts] = useState(initialProducts);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Load products on mount
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  const loadProducts = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await productService.getProducts();
+      setProducts(response.products || response || []);
+    } catch (error) {
+      console.warn('API not available, using fallback data:', error);
+      setProducts(fallbackProducts);
+      setError('Using offline data - API not available');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const searchProducts = async (query, filters = {}) => {
+    setLoading(true);
+    try {
+      const response = await productService.searchProducts(query, filters);
+      return response.products || response || [];
+    } catch (error) {
+      console.warn('Search API not available, filtering locally:', error);
+      // Fallback to local filtering
+      return products.filter(product =>
+        product.name.toLowerCase().includes(query.toLowerCase()) ||
+        product.category.toLowerCase().includes(query.toLowerCase())
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getProductsByCategory = async (category) => {
+    setLoading(true);
+    try {
+      const response = await productService.getProductsByCategory(category);
+      return response.products || response || [];
+    } catch (error) {
+      console.warn('Category API not available, filtering locally:', error);
+      // Fallback to local filtering
+      return products.filter(product => product.category === category);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getFeaturedProducts = async () => {
+    try {
+      const response = await productService.getFeaturedProducts();
+      return response.products || response || [];
+    } catch (error) {
+      console.warn('Featured products API not available, using local data:', error);
+      return products.filter(p => p.isNew || p.isSale);
+    }
+  };
+
+  const getBestSellers = async () => {
+    try {
+      const response = await productService.getBestSellers();
+      return response.products || response || [];
+    } catch (error) {
+      console.warn('Best sellers API not available, using local data:', error);
+      return products.filter(p => p.userRatings.length > 2)
+        .sort((a, b) => b.userRatings.length - a.userRatings.length);
+    }
+  };
 
   const addProduct = async (productData) => {
-    const newProduct = {
-      id: products.length + 1,
-      ...productData,
-      userRatings: [],
-      createdAt: new Date(),
-    };
-    setProducts(prev => [...prev, newProduct]);
+    try {
+      const response = await productService.addProduct(productData);
+      await loadProducts(); // Reload products
+      return response;
+    } catch (error) {
+      console.error('Add product failed:', error);
+      throw error;
+    }
   };
 
   const updateProduct = async (id, productData) => {
-    setProducts(prev => prev.map(product => 
-      product.id === id ? { ...product, ...productData, updatedAt: new Date() } : product
-    ));
+    try {
+      const response = await productService.updateProduct(id, productData);
+      await loadProducts(); // Reload products
+      return response;
+    } catch (error) {
+      console.error('Update product failed:', error);
+      throw error;
+    }
   };
 
   const deleteProduct = async (id) => {
-    setProducts(prev => prev.filter(product => product.id !== id));
+    try {
+      const response = await productService.deleteProduct(id);
+      await loadProducts(); // Reload products
+      return response;
+    } catch (error) {
+      console.error('Delete product failed:', error);
+      throw error;
+    }
   };
 
   const rateProduct = async (productId, rating) => {
-    const newRating = {
-      userId: `user${Date.now()}`,
-      rating,
-      timestamp: new Date()
-    };
-
-    setProducts(prev => prev.map(product => {
-      if (product.id === productId) {
-        return {
-          ...product,
-          userRatings: [...product.userRatings, newRating]
-        };
-      }
-      return product;
-    }));
+    try {
+      const response = await productService.addProductRating(productId, { rating });
+      await loadProducts(); // Reload products to get updated ratings
+      return response;
+    } catch (error) {
+      console.error('Rate product failed:', error);
+      throw error;
+    }
   };
 
   return (
-    <ProductsContext.Provider value={{ products, addProduct, updateProduct, deleteProduct, rateProduct }}>
+    <ProductsContext.Provider value={{ 
+      products, 
+      loading, 
+      error,
+      loadProducts,
+      searchProducts,
+      getProductsByCategory,
+      getFeaturedProducts,
+      getBestSellers,
+      addProduct, 
+      updateProduct, 
+      deleteProduct, 
+      rateProduct 
+    }}>
       {children}
     </ProductsContext.Provider>
   );

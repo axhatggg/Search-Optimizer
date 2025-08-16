@@ -32,19 +32,19 @@ const About = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header onSearch={handleSearch} cartCount={0} />
       
       <main className="container mx-auto px-4 py-8">
         {/* Hero Section */}
         <section className="text-center py-16 mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white">
             About Cartella
           </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8 animate-fade-in">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8">
           A system that uses NLP and relevance scoring to return the most appropriate products, even if the user's query is vague, misspelled, or natural language-based.
           </p>
-          <Button size="lg" className="animate-slide-up">
+          <Button size="lg">
             Start Shopping
           </Button>
         </section>
@@ -53,23 +53,23 @@ const About = () => {
         <section className="mb-16">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Our Mission</h2>
-              <p className="text-muted-foreground mb-4">
+              <h2 className="text-3xl font-bold mb-6 text-gray-900 dark:text-white">Our Mission</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-4">
                 At Cartella, we believe shopping should be enjoyable, convenient, and accessible to everyone. 
                 A system that uses NLP and relevance scoring to return the most appropriate products, even if the user's query is vague, misspelled, or natural language-based.
               </p>
-              <p className="text-muted-foreground">
+              <p className="text-gray-600 dark:text-gray-300">
               A system that uses NLP and relevance scoring to return the most appropriate products, even if the user's query is vague, misspelled, or natural language-based.
               </p>
             </div>
-            <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-lg p-8">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-lg p-8">
               <div className="text-center">
-                <div className="text-4xl font-bold text-primary mb-2">10K+</div>
-                <div className="text-muted-foreground mb-4">Happy Customers</div>
-                <div className="text-4xl font-bold text-primary mb-2">50K+</div>
-                <div className="text-muted-foreground mb-4">Products Sold</div>
-                <div className="text-4xl font-bold text-primary mb-2">99%</div>
-                <div className="text-muted-foreground">Satisfaction Rate</div>
+                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">10K+</div>
+                <div className="text-gray-600 dark:text-gray-400 mb-4">Happy Customers</div>
+                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">50K+</div>
+                <div className="text-gray-600 dark:text-gray-400 mb-4">Products Sold</div>
+                <div className="text-4xl font-bold text-blue-600 dark:text-blue-400 mb-2">99%</div>
+                <div className="text-gray-600 dark:text-gray-400">Satisfaction Rate</div>
               </div>
             </div>
           </div>
@@ -77,18 +77,18 @@ const About = () => {
 
         {/* Features Section */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold text-center mb-12">Why Choose Cartella?</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Why Choose Cartella?</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((feature, index) => (
-              <Card key={index} className="text-center hover:shadow-lg transition-shadow">
+              <Card key={index} className="text-center hover:shadow-lg transition-shadow dark:bg-gray-800">
                 <CardHeader>
-                  <div className="mx-auto mb-4 p-3 bg-primary/10 rounded-full w-fit">
-                    <feature.icon className="h-6 w-6 text-primary" />
+                  <div className="mx-auto mb-4 p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full w-fit">
+                    <feature.icon className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <CardTitle>{feature.title}</CardTitle>
+                  <CardTitle className="text-gray-900 dark:text-white">{feature.title}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>{feature.description}</CardDescription>
+                  <CardDescription className="text-gray-600 dark:text-gray-300">{feature.description}</CardDescription>
                 </CardContent>
               </Card>
             ))}
@@ -97,7 +97,7 @@ const About = () => {
 
         {/* Team Section */}
         <section className="mb-16">
-          <h2 className="text-3xl font-bold text-center mb-12">Meet Our Team</h2>
+          <h2 className="text-3xl font-bold text-center mb-12 text-gray-900 dark:text-white">Meet Our Team</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {[
               { name: "Akshat Gupta", role: "NLP/ML", bio: "Passionate Engineer" },
@@ -105,16 +105,16 @@ const About = () => {
               { name: "Saloni Kerketta", role: "Frontend", bio: "Passionate Engineer" },
               { name: "Harsh Kumar", role: "NLP/ML", bio: "Passionate Engineer" }
             ].map((member, index) => (
-              <Card key={index} className="text-center">
+              <Card key={index} className="text-center dark:bg-gray-800">
                 <CardHeader>
-                  <div className="mx-auto mb-4 w-24 h-24 bg-gradient-primary rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                  <div className="mx-auto mb-4 w-24 h-24 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
                     {member.name.split(' ').map(n => n[0]).join('')}
                   </div>
-                  <CardTitle>{member.name}</CardTitle>
-                  <CardDescription className="font-medium text-primary">{member.role}</CardDescription>
+                  <CardTitle className="text-gray-900 dark:text-white">{member.name}</CardTitle>
+                  <CardDescription className="font-medium text-blue-600 dark:text-blue-400">{member.role}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground">{member.bio}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{member.bio}</p>
                 </CardContent>
               </Card>
             ))}
@@ -122,9 +122,9 @@ const About = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="text-center py-16 bg-muted/30 rounded-lg">
-          <h2 className="text-3xl font-bold mb-4">Ready to Start Shopping?</h2>
-          <p className="text-muted-foreground mb-6">
+        <section className="text-center py-16 bg-gray-100 dark:bg-gray-800 rounded-lg">
+          <h2 className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">Ready to Start Shopping?</h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-6">
             Join thousands of satisfied customers and discover amazing products today.
           </p>
           <div className="flex justify-center gap-4">

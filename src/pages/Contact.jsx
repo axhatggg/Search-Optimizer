@@ -2,10 +2,8 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -14,7 +12,7 @@ const Contact = () => {
     subject: "",
     message: ""
   });
-  const { toast } = useToast();
+  const [message, setMessage] = useState("");
 
   const handleSearch = (query) => {
     console.log("Search query:", query);
@@ -25,19 +23,12 @@ const Contact = () => {
     
     // Simple form validation
     if (!formData.name || !formData.email || !formData.message) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields.",
-        variant: "destructive",
-      });
+      setMessage("Please fill in all required fields.");
       return;
     }
 
     // Simulate form submission
-    toast({
-      title: "Message sent!",
-      description: "We'll get back to you within 24 hours.",
-    });
+    setMessage("Message sent! We'll get back to you within 24 hours.");
 
     // Reset form
     setFormData({
@@ -83,16 +74,16 @@ const Contact = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Header onSearch={handleSearch} cartCount={0} />
       
       <main className="container mx-auto px-4 py-8">
         {/* Header Section */}
         <section className="text-center py-16 mb-16">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 animate-fade-in">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-gray-900 dark:text-white">
             Contact Us
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-in">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
             Have a question or need help? We'd love to hear from you. 
             Send us a message and we'll respond as soon as possible.
           </p>
@@ -100,18 +91,23 @@ const Contact = () => {
 
         <div className="grid lg:grid-cols-2 gap-12 mb-16">
           {/* Contact Form */}
-          <Card>
+          <Card className="dark:bg-gray-800">
             <CardHeader>
-              <CardTitle>Send us a message</CardTitle>
-              <CardDescription>
+              <CardTitle className="text-gray-900 dark:text-white">Send us a message</CardTitle>
+              <CardDescription className="text-gray-600 dark:text-gray-300">
                 Fill out the form below and we'll get back to you within 24 hours.
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {message && (
+                <div className={`p-3 rounded mb-4 ${message.includes('Error') ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300' : 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300'}`}>
+                  {message}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="name" className="block text-sm font-medium mb-2">
+                    <label htmlFor="name" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                       Name *
                     </label>
                     <Input
@@ -122,10 +118,11 @@ const Contact = () => {
                       onChange={handleInputChange}
                       placeholder="Your full name"
                       required
+                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                   </div>
                   <div>
-                    <label htmlFor="email" className="block text-sm font-medium mb-2">
+                    <label htmlFor="email" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                       Email *
                     </label>
                     <Input
@@ -136,12 +133,13 @@ const Contact = () => {
                       onChange={handleInputChange}
                       placeholder="your.email@example.com"
                       required
+                      className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                     />
                   </div>
                 </div>
                 
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium mb-2">
+                  <label htmlFor="subject" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                     Subject
                   </label>
                   <Input
@@ -151,14 +149,15 @@ const Contact = () => {
                     value={formData.subject}
                     onChange={handleInputChange}
                     placeholder="What's this about?"
+                    className="dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
                 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium mb-2">
+                  <label htmlFor="message" className="block text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
                     Message *
                   </label>
-                  <Textarea
+                  <textarea
                     id="message"
                     name="message"
                     value={formData.message}
@@ -166,6 +165,7 @@ const Contact = () => {
                     placeholder="Tell us how we can help you..."
                     rows={5}
                     required
+                    className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                   />
                 </div>
                 
@@ -179,8 +179,8 @@ const Contact = () => {
           {/* Contact Information */}
           <div className="space-y-6">
             <div>
-              <h2 className="text-2xl font-bold mb-4">Get in touch</h2>
-              <p className="text-muted-foreground mb-6">
+              <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Get in touch</h2>
+              <p className="text-gray-600 dark:text-gray-300 mb-6">
                 We're here to help and answer any question you might have. 
                 We look forward to hearing from you.
               </p>
@@ -188,16 +188,16 @@ const Contact = () => {
 
             <div className="grid gap-4">
               {contactInfo.map((info, index) => (
-                <Card key={index}>
+                <Card key={index} className="dark:bg-gray-800">
                   <CardContent className="p-4">
                     <div className="flex items-start space-x-4">
-                      <div className="p-2 bg-primary/10 rounded-lg">
-                        <info.icon className="h-5 w-5 text-primary" />
+                      <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                        <info.icon className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div>
-                        <h3 className="font-semibold">{info.title}</h3>
-                        <p className="text-sm font-medium">{info.content}</p>
-                        <p className="text-xs text-muted-foreground">{info.description}</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-white">{info.title}</h3>
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">{info.content}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{info.description}</p>
                       </div>
                     </div>
                   </CardContent>
@@ -205,10 +205,10 @@ const Contact = () => {
               ))}
             </div>
 
-            <Card className="bg-gradient-to-br from-primary/10 to-primary/5">
+            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-2">Need immediate help?</h3>
-                <p className="text-sm text-muted-foreground mb-4">
+                <h3 className="font-semibold mb-2 text-gray-900 dark:text-white">Need immediate help?</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
                   Check out our FAQ section or live chat for instant support.
                 </p>
                 <div className="flex gap-2">
@@ -222,13 +222,13 @@ const Contact = () => {
 
         {/* Map Section (Placeholder) */}
         <section className="mb-16">
-          <Card>
+          <Card className="dark:bg-gray-800">
             <CardContent className="p-0">
-              <div className="bg-muted h-64 rounded-lg flex items-center justify-center">
+              <div className="bg-gray-200 dark:bg-gray-700 h-64 rounded-lg flex items-center justify-center">
                 <div className="text-center">
-                  <MapPin className="h-12 w-12 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-muted-foreground">Interactive map would be here</p>
-                  <p className="text-sm text-muted-foreground">BIT Mesra, Ranchi, Jharkhand</p>
+                  <MapPin className="h-12 w-12 text-gray-500 dark:text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-500 dark:text-gray-400">Interactive map would be here</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">BIT Mesra, Ranchi, Jharkhand</p>
                 </div>
               </div>
             </CardContent>

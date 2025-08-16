@@ -2,10 +2,6 @@ import { useState } from "react";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 export function FilterPanel({ onFilterChange, isVisible, onToggle }) {
   const [filters, setFilters] = useState({
@@ -94,90 +90,124 @@ export function FilterPanel({ onFilterChange, isVisible, onToggle }) {
 
       <CardContent className="space-y-4">
         {/* Categories */}
-        <Collapsible open={openSections.categories} onOpenChange={() => toggleSection('categories')}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
+        <div>
+          <button
+            onClick={() => toggleSection('categories')}
+            className="flex items-center justify-between w-full py-2 text-sm font-medium"
+          >
             Categories
             {openSections.categories ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2">
-            {categories.map((category) => (
-              <div key={category} className="flex items-center space-x-2">
-                <Checkbox
-                  id={category}
-                  checked={filters.categories.includes(category)}
-                  onCheckedChange={(checked) => handleCategoryChange(category, checked)}
-                />
-                <Label htmlFor={category} className="text-sm cursor-pointer">
-                  {category}
-                </Label>
-              </div>
-            ))}
-          </CollapsibleContent>
-        </Collapsible>
+          </button>
+          {openSections.categories && (
+            <div className="space-y-2 mt-2">
+              {categories.map((category) => (
+                <div key={category} className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id={category}
+                    checked={filters.categories.includes(category)}
+                    onChange={(e) => handleCategoryChange(category, e.target.checked)}
+                    className="rounded"
+                  />
+                  <label htmlFor={category} className="text-sm cursor-pointer">
+                    {category}
+                  </label>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Price Range */}
-        <Collapsible open={openSections.price} onOpenChange={() => toggleSection('price')}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
+        <div>
+          <button
+            onClick={() => toggleSection('price')}
+            className="flex items-center justify-between w-full py-2 text-sm font-medium"
+          >
             Price Range
             {openSections.price ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-3">
-            <Slider
-              value={filters.priceRange}
-              onValueChange={(value) => updateFilters({ priceRange: value })}
-              max={1000}
-              min={0}
-              step={10}
-              className="w-full"
-            />
-            <div className="flex justify-between text-sm text-muted-foreground">
-              <span>${filters.priceRange[0]}</span>
-              <span>${filters.priceRange[1]}</span>
+          </button>
+          {openSections.price && (
+            <div className="space-y-3 mt-2">
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  value={filters.priceRange[0]}
+                  onChange={(e) => updateFilters({ priceRange: [parseInt(e.target.value), filters.priceRange[1]] })}
+                  className="w-20 px-2 py-1 border rounded text-sm"
+                  min="0"
+                  max="1000"
+                />
+                <span className="text-sm text-gray-500">to</span>
+                <input
+                  type="number"
+                  value={filters.priceRange[1]}
+                  onChange={(e) => updateFilters({ priceRange: [filters.priceRange[0], parseInt(e.target.value)] })}
+                  className="w-20 px-2 py-1 border rounded text-sm"
+                  min="0"
+                  max="1000"
+                />
+              </div>
             </div>
-          </CollapsibleContent>
-        </Collapsible>
+          )}
+        </div>
 
         {/* Rating */}
-        <Collapsible open={openSections.rating} onOpenChange={() => toggleSection('rating')}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
+        <div>
+          <button
+            onClick={() => toggleSection('rating')}
+            className="flex items-center justify-between w-full py-2 text-sm font-medium"
+          >
             Minimum Rating
             {openSections.rating ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2">
-            {[4, 3, 2, 1].map((rating) => (
-              <div key={rating} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`rating-${rating}`}
-                  checked={filters.rating === rating}
-                  onCheckedChange={(checked) => updateFilters({ rating: checked ? rating : 0 })}
-                />
-                <Label htmlFor={`rating-${rating}`} className="text-sm cursor-pointer">
-                  {rating}+ stars
-                </Label>
-              </div>
-            ))}
-          </CollapsibleContent>
-        </Collapsible>
+          </button>
+          {openSections.rating && (
+            <div className="space-y-2 mt-2">
+              {[4, 3, 2, 1].map((rating) => (
+                <div key={rating} className="flex items-center space-x-2">
+                  <input
+                    type="radio"
+                    id={`rating-${rating}`}
+                    name="rating"
+                    checked={filters.rating === rating}
+                    onChange={() => updateFilters({ rating })}
+                    className="rounded"
+                  />
+                  <label htmlFor={`rating-${rating}`} className="text-sm cursor-pointer">
+                    {rating}+ stars
+                  </label>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Availability */}
-        <Collapsible open={openSections.availability} onOpenChange={() => toggleSection('availability')}>
-          <CollapsibleTrigger className="flex items-center justify-between w-full py-2 text-sm font-medium">
+        <div>
+          <button
+            onClick={() => toggleSection('availability')}
+            className="flex items-center justify-between w-full py-2 text-sm font-medium"
+          >
             Availability
             {openSections.availability ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-2">
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="in-stock"
-                checked={filters.inStock}
-                onCheckedChange={(checked) => updateFilters({ inStock: checked })}
-              />
-              <Label htmlFor="in-stock" className="text-sm cursor-pointer">
-                In Stock Only
-              </Label>
+          </button>
+          {openSections.availability && (
+            <div className="space-y-2 mt-2">
+              <div className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  id="in-stock"
+                  checked={filters.inStock}
+                  onChange={(e) => updateFilters({ inStock: e.target.checked })}
+                  className="rounded"
+                />
+                <label htmlFor="in-stock" className="text-sm cursor-pointer">
+                  In Stock Only
+                </label>
+              </div>
             </div>
-          </CollapsibleContent>
-        </Collapsible>
+          )}
+        </div>
       </CardContent>
     </Card>
   );

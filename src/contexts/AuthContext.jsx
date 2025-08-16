@@ -1,5 +1,5 @@
-import { createContext, useContext, useState } from 'react';
-import { useToast } from '@/hooks/use-toast';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { authService } from '@/services/authService';
 
 const AuthContext = createContext(undefined);
 
@@ -13,35 +13,75 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+  const [loading, setLoading] = useState(true);
+
+  // Check for existing user on mount
+  useEffect(() => {
+    const currentUser = authService.getCurrentUser();
+    if (currentUser && authService.isAuthenticated()) {
+      setUser(currentUser);
+    }
+    setLoading(false);
+  }, []);
 
   const login = async (email, password) => {
-    // Simulate login
     setLoading(true);
-    setTimeout(() => {
-      setUser({ uid: 'demo-user', email });
+    try {
+      const response = await authService.login(email, password);
+      setUser(response.user);
+      return response;
+    } catch (error) {
+      throw error;
+    } finally {
       setLoading(false);
-      toast({
-        title: "Success",
-        description: "You have been logged in successfully!",
-      });
-    }, 1000);
+    }
+  };
+
+  const register = async (userData) => {
+    setLoading(true);
+    try {
+      const response = await authService.register(userData);
+      if (response.user) {
+        setUser(response.user);
+      }
+      return response;
+    } catch (error) {
+      throw error;
+    } finally {
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
-    setUser(null);
-    toast({
-      title: "Success",
-      description: "You have been logged out successfully!",
-    });
+    setLoading(true);
+    try {
+      await authService.logout();
+      setUser(null);
+    } catch (error) {
+      // Handle logout error silently
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const updateProfile = async (profileData) => {
+    try {
+      const response = await authService.updateProfile(profileData);
+      setUser(response.user);
+      return response;
+    } catch (error) {
+      throw error;
+    }
   };
 
   const value = {
     user,
     loading,
     login,
+    register,
     logout,
+    updateProfile,
+    isAuthenticated: authService.isAuthenticated,
   };
 
   return (
