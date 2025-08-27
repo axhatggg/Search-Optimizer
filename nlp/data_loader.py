@@ -14,7 +14,7 @@ except ImportError:
     pass
 
 # Import Elasticsearch client
-from es_query import es, INDEX_NAME, bulk_index
+from nlp.es_query import es, INDEX_NAME, bulk_index
 
 class MongoDBLoader:
     def __init__(self, mongo_uri: str, database_name: str = "ecommerce", collection_name: str = "products"):
