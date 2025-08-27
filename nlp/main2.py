@@ -4,6 +4,8 @@ import os
 from nlp.query_parser import parse_query, update_lists_from_product, RAW_CATEGORIES, COLORS, BRANDS, GENDERS
 from nlp.query_parser import set_vocab_lists, get_vocab_state
 from nlp.es_query import search_products, INDEX_NAME, es
+from nlp.es_query import create_index
+from nlp.data_loader import load_and_index_products_from_mongodb
 from pydantic import BaseModel
 from typing import Optional
 import spacy
@@ -203,3 +205,39 @@ async def refresh_lists():
     """Force rebuild vocab lists from Elasticsearch aggregations."""
     state = rebuild_vocab_from_es()
     return {"message": "Vocab lists refreshed", "state": state}
+
+
+@app.post("/reindex-from-mongo")
+async def reindex_from_mongo():
+    """Delete ES index, recreate it, and reindex all products from MongoDB."""
+    try:
+        # Delete existing index if present
+        if es.index_exists(index=INDEX_NAME):
+            es.delete_index(index=INDEX_NAME)
+        # Recreate index with mapping
+        create_index()
+
+        # Read MongoDB connection details from env
+        mongo_uri = os.getenv("MONGO_URI")
+        mongo_db = os.getenv("MONGO_DB", "ecommerce")
+        mongo_collection = os.getenv("MONGO_COLLECTION", "products")
+        if not mongo_uri:
+            raise HTTPException(status_code=500, detail="MONGO_URI environment variable is not set")
+
+        # Load and index products from MongoDB
+        ok = load_and_index_products_from_mongodb(
+            mongo_uri=mongo_uri,
+            database_name=mongo_db,
+            collection_name=mongo_collection,
+            limit=None
+        )
+        if not ok:
+            raise HTTPException(status_code=500, detail="Failed to load/index products from MongoDB")
+
+        # Refresh vocab lists from ES
+        state = rebuild_vocab_from_es()
+        return {"message": "Reindexed from MongoDB successfully", "state": state}
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
