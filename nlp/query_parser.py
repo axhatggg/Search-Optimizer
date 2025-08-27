@@ -147,6 +147,15 @@ def lemmatize_list(word_list):
 
 CATEGORIES = lemmatize_list(RAW_CATEGORIES)
 
+# Centralized fuzzy matching thresholds (stricter to reduce false positives)
+FUZZY_THRESHOLDS = {
+    "default": 70,      # generic string similarity
+    "brand": 75,        # brands tend to be proper nouns – be stricter
+    "category": 70,     # categories should not be overly permissive
+    "partial": 65,      # partial ratio threshold
+    "token_set": 65,    # token set ratio threshold
+}
+
 PRICE_PATTERNS = [
     (r"between (\d+) and (\d+)", "between"),
     (r"(?:under|below|less than)\s*\$?(\d+)", "<"),
@@ -154,81 +163,79 @@ PRICE_PATTERNS = [
     (r"(?:upto|up to)\s*\$?(\d+)", "<="),
 ]
 
-def fuzzy_match(token, choices, threshold=55):  # Lowered threshold for better misspelling tolerance
+def fuzzy_match(token, choices, threshold: int = None):
+    """Generic fuzzy match with stricter default threshold."""
+    threshold = threshold if threshold is not None else FUZZY_THRESHOLDS["default"]
     match, score, _ = process.extractOne(token, choices, scorer=fuzz.ratio)
     return match if score >= threshold else None
 
-def fuzzy_match_brand(token, choices, threshold=55):  # Lowered threshold for better brand matching
-    """Enhanced fuzzy matching specifically for brands with multiple scoring methods"""
+
+def fuzzy_match_brand(token, choices, threshold: int = None):
+    """Enhanced fuzzy matching specifically for brands with multiple scoring methods."""
+    thr = threshold if threshold is not None else FUZZY_THRESHOLDS["brand"]
+    partial_thr = FUZZY_THRESHOLDS["partial"]
+    token_set_thr = FUZZY_THRESHOLDS["token_set"]
+
     # Try exact match first
     if token.lower() in [choice.lower() for choice in choices]:
         return token.lower()
-    
-    # Try fuzzy matching with different scorers
+
     results = []
-    
-    # Try ratio scoring
+
     ratio_result = process.extractOne(token, choices, scorer=fuzz.ratio)
-    if ratio_result[1] >= threshold:
+    if ratio_result[1] >= thr:
         results.append((ratio_result[0], ratio_result[1], 'ratio'))
-    
-    # Try partial ratio for partial matches (like "iphon" matching "iphone")
-    # Lower threshold for partial matching
+
+    # Be stricter for partials to avoid spurious matches
     partial_result = process.extractOne(token, choices, scorer=fuzz.partial_ratio)
-    if partial_result[1] >= 45:  # Lower threshold for partial matches
+    if partial_result[1] >= partial_thr:
         results.append((partial_result[0], partial_result[1], 'partial'))
-    
-    # Try token sort ratio for word order variations
+
     token_sort_result = process.extractOne(token, choices, scorer=fuzz.token_sort_ratio)
-    if token_sort_result[1] >= threshold:
+    if token_sort_result[1] >= thr:
         results.append((token_sort_result[0], token_sort_result[1], 'token_sort'))
-    
-    # Try token set ratio for better partial matching
+
     token_set_result = process.extractOne(token, choices, scorer=fuzz.token_set_ratio)
-    if token_set_result[1] >= 45:  # Lower threshold for token set
+    if token_set_result[1] >= token_set_thr:
         results.append((token_set_result[0], token_set_result[1], 'token_set'))
-    
-    # Return the best match
+
     if results:
         best_match = max(results, key=lambda x: x[1])
         return best_match[0]
-    
     return None
 
-def fuzzy_match_category(token, choices, threshold=50):  # Even lower threshold for categories
-    """Enhanced fuzzy matching for categories with multiple scoring methods"""
+
+def fuzzy_match_category(token, choices, threshold: int = None):
+    """Enhanced fuzzy matching for categories with multiple scoring methods."""
+    thr = threshold if threshold is not None else FUZZY_THRESHOLDS["category"]
+    partial_thr = FUZZY_THRESHOLDS["partial"]
+    token_set_thr = FUZZY_THRESHOLDS["token_set"]
+
     # Try exact match first
     if token.lower() in [choice.lower() for choice in choices]:
         return token.lower()
-    
-    # Try fuzzy matching with different scorers
+
     results = []
-    
-    # Try ratio scoring
+
     ratio_result = process.extractOne(token, choices, scorer=fuzz.ratio)
-    if ratio_result[1] >= threshold:
+    if ratio_result[1] >= thr:
         results.append((ratio_result[0], ratio_result[1], 'ratio'))
-    
-    # Try partial ratio for partial matches
+
     partial_result = process.extractOne(token, choices, scorer=fuzz.partial_ratio)
-    if partial_result[1] >= 40:  # Lower threshold for partial matches
+    if partial_result[1] >= partial_thr:
         results.append((partial_result[0], partial_result[1], 'partial'))
-    
-    # Try token sort ratio for word order variations
+
     token_sort_result = process.extractOne(token, choices, scorer=fuzz.token_sort_ratio)
-    if token_sort_result[1] >= threshold:
+    if token_sort_result[1] >= thr:
         results.append((token_sort_result[0], token_sort_result[1], 'token_sort'))
-    
-    # Try token set ratio for better partial matching
+
     token_set_result = process.extractOne(token, choices, scorer=fuzz.token_set_ratio)
-    if token_set_result[1] >= 40:  # Lower threshold for token set
+    if token_set_result[1] >= token_set_thr:
         results.append((token_set_result[0], token_set_result[1], 'token_set'))
-    
-    # Return the best match
+
     if results:
         best_match = max(results, key=lambda x: x[1])
         return best_match[0]
-    
     return None
 
 def normalize_token(token):
