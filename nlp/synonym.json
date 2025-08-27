@@ -3,7 +3,50 @@
       "shoes": [
         "footwear", "sneakers", "trainers", "kicks", "boots", "formal shoes", "heels", "flip flops", "slippers",
         "sports shoes", "running shoes", "walking shoes", "casual shoes", "oxfords", "derbies", "brogues",
-        "high tops", "sandals", "clogs"
+        "high tops", "sandals", "clogs", "snikers", "snickers", "snikers", "snikers", "snikers",
+        "shoe", "sneaker", "footwear item"
+      ],
+      "sneakers": [
+        "shoes", "footwear", "trainers", "kicks", "sports shoes", "running shoes", "athletic shoes",
+        "snikers", "snickers", "snikers", "snikers", "snikers",
+        "sneaker", "shoe", "athletic footwear"
+      ],
+      "sneaker": [
+        "sneakers", "shoes", "footwear", "trainers", "kicks", "sports shoes", "running shoes", "athletic shoes",
+        "snikers", "snickers", "snikers", "snikers", "snikers"
+      ],
+      "shoe": [
+        "shoes", "footwear", "sneakers", "trainers", "kicks", "boots", "formal shoes", "heels", "flip flops", "slippers",
+        "sports shoes", "running shoes", "walking shoes", "casual shoes", "oxfords", "derbies", "brogues"
+      ],
+      "laptop": [
+        "laptops", "computer", "notebook", "portable computer", "mobile computer", "laptop computer",
+        "lnovo", "lenovo", "dell", "hp", "asus", "acer", "msi"
+      ],
+      "laptops": [
+        "laptop", "computer", "notebook", "portable computer", "mobile computer", "laptop computer"
+      ],
+      "computer": [
+        "computers", "laptop", "laptops", "desktop", "desktops", "pc", "personal computer"
+      ],
+      "computers": [
+        "computer", "laptop", "laptops", "desktop", "desktops", "pc", "personal computer"
+      ],
+      "phone": [
+        "phones", "mobile", "smartphone", "cell phone", "cellular phone", "mobile phone",
+        "telephone", "handset", "device"
+      ],
+      "phones": [
+        "phone", "mobile", "smartphone", "cell phone", "cellular phone", "mobile phone",
+        "telephone", "handset", "device"
+      ],
+      "boot": [
+        "boots", "footwear", "shoes", "hiking boots", "work boots", "winter boots",
+        "ankle boots", "knee-high boots", "riding boots"
+      ],
+      "boots": [
+        "boot", "footwear", "shoes", "hiking boots", "work boots", "winter boots",
+        "ankle boots", "knee-high boots", "riding boots"
       ],
       "shirts": [
         "tops", "t-shirts", "tees", "polo shirts", "crew neck", "v-neck", "henley", "blouses", "button-down",
@@ -39,9 +82,13 @@
       ]
     },
     "brands": {
-      "nike": ["nikey", "nike inc", "nk", "nike brand", "nike sportswear", "nikie"],
-      "adidas": ["addidas", "adi", "adidas ag", "adidas group", "adi-das"],
-      "puma": ["poma", "pumma", "puma se", "puma sports", "pumaa"],
+      "nike": ["nikey", "nike inc", "nk", "nike brand", "nike sportswear", "nikie", "nike"],
+      "adidas": ["addidas", "adi", "adidas ag", "adidas group", "adi-das", "adidas"],
+      "puma": ["poma", "pumma", "puma se", "puma sports", "pumaa", "puma"],
+      "lenovo": ["lnovo", "lenovo", "lenovo inc", "lenovo group", "lenovo computers", "lenovo laptop"],
+      "dell": ["dell inc", "dell computers", "dell laptops", "dell tech", "dell inspiron", "dell"],
+      "hp": ["hewlett packard", "hp laptops", "hp india", "hp pavilion", "hp envy", "hp"],
+      "asus": ["asustek", "asus laptops", "rog", "asus rog", "zenbook", "asus"],
       "apple": ["apple inc", "apple corporation", "apple store", "mac", "iphone", "macbook"],
       "iphone": ["iphon", "iphones", "iphonee", "iphonex", "iphone xs", "iphone xr", "iphone 11", "iphone 12", "iphone 13", "iphone 14", "iphone 15", "apple iphone", "iphone apple"],
       "samsung": ["sam sung", "samsung electronics", "samsung india", "samzung", "galaxy", "samsang"],
@@ -50,9 +97,6 @@
       "zara": ["zarra", "zra", "zara fashion", "zara clothing", "zaraa"],
       "h&m": ["hm", "h and m", "hennes & mauritz", "hennes", "handm"],
       "gucci": ["guci", "guccy", "gucci brand", "gucci italy", "gucci fashion"],
-      "dell": ["dell inc", "dell computers", "dell laptops", "dell tech", "dell inspiron"],
-      "asus": ["asustek", "asus laptops", "rog", "asus rog", "zenbook"],
-      "hp": ["hewlett packard", "hp laptops", "hp india", "hp pavilion", "hp envy"],
       "realme": ["realm", "real mi", "realme india", "realme phones"],
       "oneplus": ["one plus", "1+", "oneplus india", "one plus phone"]
     },

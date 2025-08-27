@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from dotenv import load_dotenv
 import os
 from nlp.query_parser import parse_query, update_lists_from_product, RAW_CATEGORIES, COLORS, BRANDS, GENDERS
+from nlp.query_parser import set_vocab_lists, get_vocab_state
 from nlp.es_query import search_products, INDEX_NAME, es
 from pydantic import BaseModel
 from typing import Optional
@@ -13,6 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 load_dotenv()
 
 nlp = spacy.load("en_core_web_sm")
+
 
 def lemmatize(text: str) -> str:
     return " ".join([token.lemma_ for token in nlp(text.lower()) if not token.is_punct and not token.is_space])
@@ -41,6 +43,47 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+def rebuild_vocab_from_es():
+    """Aggregate distinct values from Elasticsearch and set dynamic vocab lists."""
+    try:
+        body = {
+            "size": 0,
+            "aggs": {
+                "categories": {"terms": {"field": "category", "size": 1000}},
+                "colors": {"terms": {"field": "color", "size": 1000}},
+                "brands": {"terms": {"field": "brand", "size": 2000}},
+                "genders": {"terms": {"field": "gender", "size": 100}}
+            }
+        }
+        res = es.search(index=INDEX_NAME, body=body)
+        aggs = res.get("aggregations", {})
+
+        categories = [b["key"] for b in aggs.get("categories", {}).get("buckets", [])]
+        colors = [b["key"] for b in aggs.get("colors", {}).get("buckets", [])]
+        brands = [b["key"] for b in aggs.get("brands", {}).get("buckets", [])]
+        genders = [b["key"] for b in aggs.get("genders", {}).get("buckets", [])]
+
+        set_vocab_lists(
+            raw_categories=categories or RAW_CATEGORIES,
+            colors=colors or COLORS,
+            brands=brands or BRANDS,
+            genders=genders or GENDERS,
+        )
+        return get_vocab_state()
+    except Exception as e:
+        # If ES is empty or aggregations fail, keep existing lists
+        return {
+            "error": str(e),
+            "state": get_vocab_state()
+        }
+
+
+@app.on_event("startup")
+async def startup_event():
+    rebuild_vocab_from_es()
+
 
 @app.get("/search")
 async def search(q: str = Query(..., min_length=1)):
@@ -71,6 +114,7 @@ async def search(q: str = Query(..., min_length=1)):
         return {"total": len(results), "results": results}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.post("/add-product")
 async def add_product(product: Product):
@@ -111,6 +155,9 @@ async def add_product(product: Product):
         result = es.index_document(index=INDEX_NAME, body=doc)
         es.refresh(index=INDEX_NAME)
 
+        # Rebuild vocab lists so new items are immediately available to NLP
+        rebuild_vocab_from_es()
+
         return {
             "message": "Product added successfully",
             "product_id": result.get("_id"),
@@ -127,7 +174,6 @@ async def add_product(product: Product):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-
 @app.get("/debug")
 async def debug():
     query = {
@@ -137,6 +183,7 @@ async def debug():
     }
     res = es.search(index=INDEX_NAME, body=query)
     return res["hits"]["hits"]
+
 
 @app.get("/lists")
 async def get_lists():
@@ -149,3 +196,10 @@ async def get_lists():
         "brands": BRANDS,
         "genders": GENDERS
     }
+
+
+@app.post("/refresh-lists")
+async def refresh_lists():
+    """Force rebuild vocab lists from Elasticsearch aggregations."""
+    state = rebuild_vocab_from_es()
+    return {"message": "Vocab lists refreshed", "state": state}
