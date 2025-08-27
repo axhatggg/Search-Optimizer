@@ -218,9 +218,9 @@ async def reindex_from_mongo():
         create_index()
 
         # Read MongoDB connection details from env
-        mongo_uri = os.getenv("MONGO_URI")
-        mongo_db = os.getenv("MONGO_DB", "ecommerce")
-        mongo_collection = os.getenv("MONGO_COLLECTION", "products")
+        mongo_uri = "mongodb+srv://faiqueofficial695:newpwd123@cluster0.fsvyahj.mongodb.net"
+        mongo_db = "MyDatabase"
+        mongo_collection = "products"
         if not mongo_uri:
             raise HTTPException(status_code=500, detail="MONGO_URI environment variable is not set")
 
